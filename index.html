@@ -1311,7 +1311,7 @@ function loadQuiz(qz){
     ...theory.map(q=>prepQuestion(q,'Teoria')),
     ...numeric.map(q=>prepQuestion(q,'Problema'))
   ];
-  currentQuiz={mode:qz.mode,questions,answered:new Array(questions.length).fill(null),title};
+  currentQuiz={mode:qz.mode,questions,answered:new Array(questions.length).fill(null),title,idx:0,concluded:false};
   renderQuiz();
 }
 
@@ -1319,102 +1319,125 @@ function renderQuiz(){
   const {questions,mode,title}=currentQuiz;
   let html=`<div class="card tight"><b>${title}</b> · ${questions.length} domande `
     +`(${questions.filter(q=>q.type==='Teoria').length} teoria + ${questions.filter(q=>q.type==='Problema').length} problemi). `
-    +(mode==='final'?'<span class="muted small">Il punteggio compare solo alla fine.</span>':'<span class="muted small">Riscontro immediato con spiegazione.</span>')
+    +(mode==='final'?'<span class="muted small">Una domanda alla volta; il punteggio compare solo alla fine. Puoi tornare indietro per rivedere.</span>':'<span class="muted small">Una domanda alla volta, con riscontro immediato. Puoi tornare indietro per rileggere.</span>')
     +`</div>`;
-  questions.forEach((q,qi)=>{
-    html+=`<div class="qcard" data-qi="${qi}">
-      <div class="qnum">Domanda ${qi+1} <span class="tagn">${q.type}</span>${q.src?` <span class="muted small">· ${q.src.replace(/Quiz \d+ · /,'')}</span>`:''}</div>
-      <div class="qtext">${q.q}</div>
-      <div class="opts">`;
-    q.opts.forEach((o,oi)=>{
-      html+=`<div class="opt" data-oi="${oi}"><span class="mk">${String.fromCharCode(65+oi)}</span><span>${o}</span></div>`;
-    });
-    html+=`</div><div class="explain"></div></div>`;
-  });
-  if(currentQuiz.mode==='final'){
-    html+=`<div class="quiz-foot">
-      <div class="progress"><i id="qProg"></i></div>
-      <button class="btn bfield" id="qSubmit">Concludi e mostra punteggio</button>
+  html+=`<div id="qStage"></div>`;
+  html+=`<div class="quiz-foot">
+      <button class="btn ghost" id="qPrev">← Indietro</button>
+      <div style="flex:1;min-width:120px">
+        <div class="small muted" id="qCounter" style="text-align:center;margin-bottom:.25rem"></div>
+        <div class="progress"><i id="qProg"></i></div>
+      </div>
+      <button class="btn primary" id="qNext">Avanti →</button>
     </div>`;
-  }else{
-    html+=`<div class="quiz-foot"><div class="progress"><i id="qProg"></i></div><span class="score-badge muted" id="qLive">0 / ${questions.length}</span></div>`;
-  }
   html+=`<div class="result-panel card" id="resultPanel"></div>`;
   quizArea.innerHTML=html;
 
-  quizArea.querySelectorAll('.qcard').forEach(card=>{
-    const qi=parseInt(card.dataset.qi);
-    card.querySelectorAll('.opt').forEach(opt=>{
-      opt.addEventListener('click',()=>onAnswer(qi,parseInt(opt.dataset.oi),card));
-    });
+  document.getElementById('qPrev').addEventListener('click',()=>{
+    if(currentQuiz.idx>0){currentQuiz.idx--;renderQuestion();}
   });
-  if(currentQuiz.mode==='final'){
-    document.getElementById('qSubmit').addEventListener('click',submitFinal);
-  }
-  updateProgress();
-  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([quizArea]).catch(()=>{});
+  document.getElementById('qNext').addEventListener('click',()=>{
+    if(currentQuiz.idx < currentQuiz.questions.length-1){currentQuiz.idx++;renderQuestion();}
+    else concludeQuiz();
+  });
+  renderQuestion();
   quizArea.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function onAnswer(qi,oi,card){
+/* Mostra la singola domanda corrente */
+function renderQuestion(){
+  const {questions,mode,idx,answered,concluded}=currentQuiz;
+  const q=questions[idx];
+  const a=answered[idx];
+  // rivelata (correzione + spiegazione) se: quiz concluso, oppure in modalità immediata già risposta
+  const revealed = concluded || (mode==='immediate' && a!==null);
+  const stage=document.getElementById('qStage');
+  let html=`<div class="qcard" data-qi="${idx}">
+      <div class="qnum">Domanda ${idx+1} di ${questions.length} <span class="tagn">${q.type}</span>${q.src?` <span class="muted small">· ${q.src.replace(/Quiz \d+ · /,'')}</span>`:''}</div>
+      <div class="qtext">${q.q}</div>
+      <div class="opts">`;
+  q.opts.forEach((o,oi)=>{
+    let cls='opt';
+    if(revealed){
+      cls+=' disabled';
+      if(oi===q.correct)cls+=' correct';
+      if(oi===a && a!==q.correct)cls+=' wrong';
+    }else if(a===oi){
+      cls+=' sel';
+    }
+    html+=`<div class="${cls}" data-oi="${oi}"><span class="mk">${String.fromCharCode(65+oi)}</span><span>${o}</span></div>`;
+  });
+  html+=`</div>`;
+  // spiegazione
+  if(revealed){
+    if(a===q.correct)html+=`<div class="explain show ok"><b>Corretto.</b> ${q.e}</div>`;
+    else html+=`<div class="explain show no"><b>${a===null?'Senza risposta.':'Non corretto.'}</b> Risposta giusta: ${String.fromCharCode(65+q.correct)}. ${q.e}</div>`;
+  }else{
+    html+=`<div class="explain"></div>`;
+  }
+  html+=`</div>`;
+  stage.innerHTML=html;
+
+  // click sulle opzioni (solo se non ancora rivelata)
+  if(!revealed){
+    stage.querySelectorAll('.opt').forEach(opt=>{
+      opt.addEventListener('click',()=>onAnswer(idx,parseInt(opt.dataset.oi)));
+    });
+  }
+  updateNav();
+  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([stage]).catch(()=>{});
+}
+
+function onAnswer(qi,oi){
   const q=currentQuiz.questions[qi];
   if(currentQuiz.mode==='immediate'){
-    if(currentQuiz.answered[qi]!==null)return; // già risposto
+    if(currentQuiz.answered[qi]!==null)return; // già risposto: bloccato
     currentQuiz.answered[qi]=oi;
-    const opts=card.querySelectorAll('.opt');
-    opts.forEach((o,i)=>{
-      o.classList.add('disabled');
-      if(i===q.correct)o.classList.add('correct');
-      if(i===oi&&oi!==q.correct)o.classList.add('wrong');
-    });
-    const exp=card.querySelector('.explain');
-    if(oi===q.correct){exp.className='explain show ok';exp.innerHTML='<b>Corretto.</b> '+q.e;}
-    else{exp.className='explain show no';exp.innerHTML='<b>Non corretto.</b> La risposta giusta è '+String.fromCharCode(65+q.correct)+'. '+q.e;}
-    if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([exp]).catch(()=>{});
+    renderQuestion(); // ridisegna mostrando il riscontro immediato
   }else{
-    // finale: solo selezione, nessun feedback
+    // finale: sola selezione, cambiabile finché non si conclude
+    if(currentQuiz.concluded)return;
     currentQuiz.answered[qi]=oi;
-    card.querySelectorAll('.opt').forEach((o,i)=>o.classList.toggle('sel',i===oi));
+    const stage=document.getElementById('qStage');
+    stage.querySelectorAll('.opt').forEach((o,i)=>o.classList.toggle('sel',i===oi));
+    updateNav();
   }
-  updateProgress();
 }
 
-function updateProgress(){
-  const done=currentQuiz.answered.filter(a=>a!==null).length;
-  const tot=currentQuiz.questions.length;
+function updateNav(){
+  const {questions,idx,answered,mode,concluded}=currentQuiz;
+  const last=idx===questions.length-1;
+  const prev=document.getElementById('qPrev');
+  const next=document.getElementById('qNext');
+  const counter=document.getElementById('qCounter');
   const prog=document.getElementById('qProg');
-  if(prog)prog.style.width=(done/tot*100)+'%';
-  if(currentQuiz.mode==='immediate'){
-    const correct=currentQuiz.answered.reduce((s,a,i)=>s+(a===currentQuiz.questions[i].correct?1:0),0);
-    const live=document.getElementById('qLive');
-    if(live)live.textContent=correct+' / '+tot+' corrette';
-    if(done===tot)showResult(correct,tot,true);
+  prev.disabled = idx===0;
+  const done=answered.filter(a=>a!==null).length;
+  if(prog)prog.style.width=(done/questions.length*100)+'%';
+  if(counter)counter.textContent='Risposte date: '+done+' / '+questions.length;
+  if(last){
+    if(mode==='final' && !concluded){next.textContent='Concludi e mostra punteggio';next.className='btn bfield';}
+    else if(mode==='immediate' && !concluded){next.textContent='Concludi e vedi punteggio';next.className='btn bfield';}
+    else {next.textContent='Rivedi il punteggio';next.className='btn primary';}
+  }else{
+    next.textContent='Avanti →';next.className='btn primary';
   }
 }
 
-function submitFinal(){
-  const {questions,answered}=currentQuiz;
-  const unanswered=answered.filter(a=>a===null).length;
-  if(unanswered>0 && !confirm('Ci sono '+unanswered+' domande senza risposta. Vuoi concludere comunque?'))return;
-  // rivela le correzioni
-  quizArea.querySelectorAll('.qcard').forEach(card=>{
-    const qi=parseInt(card.dataset.qi);const q=questions[qi];const a=answered[qi];
-    card.querySelectorAll('.opt').forEach((o,i)=>{
-      o.classList.add('disabled');
-      if(i===q.correct)o.classList.add('correct');
-      if(i===a&&a!==q.correct)o.classList.add('wrong');
-    });
-    const exp=card.querySelector('.explain');
-    if(a===q.correct){exp.className='explain show ok';exp.innerHTML='<b>Corretto.</b> '+q.e;}
-    else{exp.className='explain show no';exp.innerHTML='<b>'+(a===null?'Senza risposta.':'Non corretto.')+'</b> Risposta giusta: '+String.fromCharCode(65+q.correct)+'. '+q.e;}
-  });
+function concludeQuiz(){
+  const {questions,answered,mode}=currentQuiz;
+  if(!currentQuiz.concluded){
+    const unanswered=answered.filter(a=>a===null).length;
+    if(unanswered>0 && !confirm('Ci sono '+unanswered+' domande senza risposta. Vuoi concludere comunque?'))return;
+    currentQuiz.concluded=true;
+    // nel finale ora si rivelano le correzioni navigando; ridisegna la domanda corrente
+    renderQuestion();
+  }
   const correct=answered.reduce((s,a,i)=>s+(a===questions[i].correct?1:0),0);
-  document.getElementById('qSubmit').disabled=true;
-  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([quizArea]).catch(()=>{});
-  showResult(correct,questions.length,false);
+  showResult(correct,questions.length);
 }
 
-function showResult(correct,tot,immediate){
+function showResult(correct,tot){
   const panel=document.getElementById('resultPanel');
   if(!panel)return;
   const pct=Math.round(correct/tot*100);
@@ -1434,8 +1457,13 @@ function showResult(correct,tot,immediate){
     <h3>Punteggio: ${correct} su ${tot}</h3>
     <p class="muted">${msg}</p>
     <div class="btn-row" style="justify-content:center">
+      <button class="btn" id="qReview">Rivedi le domande</button>
       <button class="btn primary" id="qRetry">Riprova questo quiz</button>
     </div>`;
+  document.getElementById('qReview').addEventListener('click',()=>{
+    currentQuiz.idx=0;renderQuestion();
+    document.getElementById('qStage').scrollIntoView({behavior:'smooth',block:'start'});
+  });
   document.getElementById('qRetry').addEventListener('click',()=>{
     const active=picker.querySelector('button.active');
     const qz=quizzes[[...picker.children].indexOf(active)];
