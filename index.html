@@ -4,9 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Campo magnetico e corrente alternata</title>
-<meta name="description" content="Web app didattica interattiva su campo magnetico, induzione elettromagnetica e corrente alternata per il liceo scientifico.">
+<meta name="description" content="Percorso interattivo su campo magnetico, induzione elettromagnetica e corrente alternata per il liceo scientifico.">
 
-<!-- MathJax (unica dipendenza esterna, per la tipografia delle formule) -->
 <script>
 window.MathJax = {
   tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
@@ -19,191 +18,176 @@ window.MathJax = {
 <style>
 /* ============================================================
    PALETTE E TEMA GIORNO / NOTTE
-   - Blu = tensione / accento condiviso con l'app sul campo elettrico
-   - Ambra = corrente
-   - Viola = campo magnetico B (colore dedicato, distinto da E)
-   - Nessuna coppia rosso-verde
+   Blu = tensione/accento · Ambra = corrente · Viola = campo B
+   Nessuna coppia rosso-verde
    ============================================================ */
 :root{
-  --bg:#f3f0e8;
-  --bg2:#ece7db;
-  --surface:#fffdf7;
-  --surface2:#f7f3ea;
-  --ink:#1c1c2a;
-  --muted:#585a6e;
-  --border:#d9d3c4;
-  --border-strong:#c3bca9;
-  --accent:#2f6fed;      /* blu: tensione / accento */
-  --accent-soft:#dbe6ff;
-  --bfield:#7c3aed;      /* viola: campo magnetico B */
-  --bfield-soft:#ece0ff;
-  --current:#dd7a06;     /* ambra: corrente */
-  --current-soft:#ffe8c9;
-  --good:#0f766e;        /* teal (non verde acceso) per "corretto" */
-  --good-soft:#cdeeea;
-  --bad:#b4451f;         /* ruggine per "errore" (non rosso puro) */
-  --bad-soft:#f6ddcf;
-  --grid:#e4ddcd;
-  --shadow:rgba(40,35,20,.10);
+  --bg:#f3f0e8; --bg2:#ece7db;
+  --surface:#fffdf7; --surface2:#f7f3ea;
+  --ink:#1c1c2a; --muted:#585a6e;
+  --border:#d9d3c4; --border-strong:#c3bca9;
+  --accent:#2f6fed; --accent-soft:#dbe6ff;
+  --bfield:#7c3aed; --bfield-soft:#ece0ff;
+  --current:#dd7a06; --current-soft:#ffe8c9;
+  --good:#0f766e; --good-soft:#cdeeea;
+  --bad:#b4451f; --bad-soft:#f6ddcf;
+  --grid:#e4ddcd; --shadow:rgba(40,35,20,.10);
   --transition:.55s cubic-bezier(.4,0,.2,1);
 }
 :root[data-theme="dark"]{
-  --bg:#0e1320;
-  --bg2:#0a0e18;
-  --surface:#161d2e;
-  --surface2:#1b2437;
-  --ink:#e7eaf3;
-  --muted:#9aa3b8;
-  --border:#2a3348;
-  --border-strong:#3a4560;
-  --accent:#6b9bff;
-  --accent-soft:#1e2b4d;
-  --bfield:#b198f7;
-  --bfield-soft:#2a2148;
-  --current:#f0a44d;
-  --current-soft:#3a2a14;
-  --good:#4fd0c4;
-  --good-soft:#123330;
-  --bad:#e8875f;
-  --bad-soft:#3a2018;
-  --grid:#212a3d;
-  --shadow:rgba(0,0,0,.45);
+  --bg:#0e1320; --bg2:#0a0e18;
+  --surface:#161d2e; --surface2:#1b2437;
+  --ink:#e7eaf3; --muted:#9aa3b8;
+  --border:#2a3348; --border-strong:#3a4560;
+  --accent:#6b9bff; --accent-soft:#1e2b4d;
+  --bfield:#b198f7; --bfield-soft:#2a2148;
+  --current:#f0a44d; --current-soft:#3a2a14;
+  --good:#4fd0c4; --good-soft:#123330;
+  --bad:#e8875f; --bad-soft:#3a2018;
+  --grid:#212a3d; --shadow:rgba(0,0,0,.45);
 }
-
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  line-height:1.6;
+  background:var(--bg); color:var(--ink); line-height:1.6;
   transition:background var(--transition),color var(--transition);
   -webkit-font-smoothing:antialiased;
 }
 body.theme-anim, body.theme-anim *{transition:background var(--transition),color var(--transition),border-color var(--transition),fill var(--transition),stroke var(--transition) !important;}
-
 h1,h2,h3,h4{line-height:1.25;font-weight:700}
-h2{font-size:1.5rem;margin:0 0 .2rem}
-h3{font-size:1.18rem;margin:1.6rem 0 .5rem;color:var(--ink)}
-h4{font-size:1.02rem;margin:1.1rem 0 .3rem}
+h2{font-size:1.45rem;margin:0 0 .2rem}
+h3{font-size:1.15rem;margin:1.5rem 0 .5rem}
+h4{font-size:1.0rem;margin:1.05rem 0 .3rem}
 p{margin:.55rem 0}
 a{color:var(--accent)}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--surface2);padding:.1em .35em;border-radius:4px;font-size:.9em}
 
-/* ---------- HEADER / NAV ---------- */
-header{
+/* ---------- HEADER ---------- */
+.site-head{
   background:linear-gradient(180deg,var(--surface),var(--surface2));
   border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:50;
-  box-shadow:0 2px 10px var(--shadow);
+  position:sticky;top:0;z-index:50;box-shadow:0 2px 10px var(--shadow);
 }
-.header-inner{max-width:1080px;margin:0 auto;padding:.55rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.head-row{max-width:1100px;margin:0 auto;padding:.55rem 1rem;display:flex;align-items:center;gap:1rem}
 .brand{display:flex;align-items:center;gap:.6rem;min-width:0}
-.brand-badge{
-  width:34px;height:34px;flex:0 0 34px;border-radius:9px;
-  background:radial-gradient(circle at 30% 30%,var(--bfield),var(--accent));
-  position:relative;box-shadow:0 2px 8px var(--shadow);
+.brand-mark{
+  width:36px;height:36px;flex:0 0 36px;border-radius:9px;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 30%,var(--bfield),var(--accent));box-shadow:0 2px 8px var(--shadow);
 }
-.brand-badge::after{content:"";position:absolute;inset:8px;border-radius:50%;border:2px solid rgba(255,255,255,.85);border-right-color:transparent;border-bottom-color:transparent;transform:rotate(30deg)}
-.brand-title{font-weight:700;font-size:1.02rem;letter-spacing:.1px}
-.brand-sub{font-size:.72rem;color:var(--muted);margin-top:-2px}
+.brand-mark svg{width:22px;height:22px}
+.brand-txt b{font-size:1.0rem;display:block;letter-spacing:.1px}
+.brand-txt span{font-size:.72rem;color:var(--muted)}
 .spacer{flex:1 1 auto}
-
-.theme-toggle{
+.theme-btn{
   border:1px solid var(--border-strong);background:var(--surface2);color:var(--ink);
   border-radius:999px;padding:.35rem .7rem;cursor:pointer;font-size:.82rem;
   display:inline-flex;align-items:center;gap:.4rem;transition:transform .2s,background var(--transition);
 }
-.theme-toggle:hover{transform:translateY(-1px)}
-.theme-toggle .icon{width:16px;height:16px;display:inline-block}
+.theme-btn:hover{transform:translateY(-1px)}
+.theme-btn svg{width:16px;height:16px}
 
-/* Nav tabs */
-nav.tabs{max-width:1080px;margin:0 auto;padding:0 .5rem .4rem;display:flex;gap:.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-nav.tabs button{
-  border:none;background:transparent;color:var(--muted);font-size:.9rem;font-weight:600;
-  padding:.5rem .8rem;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;
-  border-bottom:2.5px solid transparent;transition:color .2s,border-color .2s,background .2s;
+/* Module navigation bar */
+#mainNav{
+  max-width:1100px;margin:0 auto;padding:0 .6rem .45rem;
+  display:flex;gap:.3rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;
 }
-nav.tabs button:hover{color:var(--ink);background:var(--surface2)}
-nav.tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
+#mainNav button{
+  border:1px solid transparent;background:transparent;color:var(--muted);
+  font-size:.86rem;font-weight:600;padding:.42rem .78rem;border-radius:999px;
+  cursor:pointer;white-space:nowrap;transition:all .2s;
+}
+#mainNav button:hover{color:var(--ink);background:var(--surface2)}
+#mainNav button[aria-current="true"]{color:#fff;background:var(--bfield);border-color:var(--bfield)}
 
-/* ---------- LAYOUT ---------- */
-main{max-width:1080px;margin:0 auto;padding:1.2rem 1rem 4rem}
-.section{display:none;animation:fade .35s ease}
-.section.active{display:block}
+/* ---------- MODULE SECTIONS ---------- */
+main{max-width:1100px;margin:0 auto;padding:1.2rem 1rem 4rem}
+.mod{display:none;animation:fade .35s ease}
+.mod.on{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-.card{
-  background:var(--surface);border:1px solid var(--border);border-radius:14px;
-  padding:1.1rem 1.15rem;margin:1rem 0;box-shadow:0 1px 4px var(--shadow);
-}
-.card.tight{padding:.9rem 1rem}
-.lead{font-size:1.02rem;color:var(--ink)}
-.muted{color:var(--muted)}
-.small{font-size:.85rem}
-
+.mod-head{margin-bottom:.4rem}
 .eyebrow{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--bfield);background:var(--bfield-soft);padding:.2rem .55rem;border-radius:999px;margin-bottom:.5rem}
 .eyebrow.blue{color:var(--accent);background:var(--accent-soft)}
 .eyebrow.amber{color:var(--current);background:var(--current-soft)}
 
-/* Sub navigation inside a section */
-.subnav{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 1rem}
-.subnav button{
-  border:1px solid var(--border);background:var(--surface2);color:var(--muted);
-  border-radius:999px;padding:.35rem .8rem;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;
+/* Inner tabs (Teoria / Simulazioni / Esercizi / Quiz) */
+.tabs{
+  display:flex;gap:.25rem;flex-wrap:wrap;margin:.9rem 0 1rem;
+  border-bottom:1px solid var(--border);padding-bottom:.1rem;
 }
-.subnav button.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.subnav.bacc button.active{background:var(--bfield);border-color:var(--bfield)}
+.tabs button{
+  border:none;background:transparent;color:var(--muted);font-size:.9rem;font-weight:600;
+  padding:.5rem .85rem;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;
+  border-bottom:2.5px solid transparent;transition:all .2s;margin-bottom:-1px;
+}
+.tabs button:hover{color:var(--ink);background:var(--surface2)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
 
-.topic{display:none}
-.topic.active{display:block;animation:fade .3s ease}
+.pane{display:none}
+.pane.on{display:block;animation:fade .3s ease}
 
-/* Callouts */
+/* prev/next module nav */
+.secnav{display:flex;justify-content:space-between;gap:.6rem;margin:1.6rem 0 .3rem}
+.secnav button{
+  border:1px solid var(--border-strong);background:var(--surface2);color:var(--ink);
+  border-radius:10px;padding:.55rem .9rem;font-size:.88rem;font-weight:600;cursor:pointer;transition:transform .15s,background .2s;
+}
+.secnav button:hover{transform:translateY(-1px)}
+.secnav button.next{background:var(--bfield);border-color:var(--bfield);color:#fff}
+.secnav span{flex:0 0 auto}
+
+/* ---------- CARDS & CONTENT ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.15rem;margin:1rem 0;box-shadow:0 1px 4px var(--shadow);}
+.card.tight{padding:.9rem 1rem}
+.lead{font-size:1.02rem}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
 .callout{border-left:4px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0;padding:.7rem .9rem;margin:.9rem 0}
 .callout.analogia{border-left-color:var(--current)}
 .callout.attenzione{border-left-color:var(--bad)}
 .callout.mano{border-left-color:var(--bfield)}
 .callout .tag{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:.2rem}
-
 .formula-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.4rem .8rem;margin:.7rem 0;overflow-x:auto}
-
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-@media(max-width:720px){.grid2{grid-template-columns:1fr}}
-
 figure{margin:1rem 0;text-align:center}
 figure svg{max-width:100%;height:auto}
 figcaption{font-size:.82rem;color:var(--muted);margin-top:.4rem}
+.hl-b{color:var(--bfield);font-weight:700}.hl-v{color:var(--accent);font-weight:700}.hl-i{color:var(--current);font-weight:700}
+table.tbl{width:100%;border-collapse:collapse;font-size:.9rem;margin:.7rem 0}
+table.tbl th,table.tbl td{border:1px solid var(--border);padding:.45rem .6rem;text-align:left}
+table.tbl th{background:var(--surface2)}
+.scroll-x{overflow-x:auto}
 
-/* ---------- CONTROLS / SLIDERS ---------- */
+/* Timeline (intro) */
+.timeline{list-style:none;padding:0;margin:.8rem 0;border-left:2px solid var(--border-strong)}
+.timeline li{position:relative;padding:.35rem 0 .7rem 1.1rem}
+.timeline li::before{content:"";position:absolute;left:-7px;top:.75rem;width:12px;height:12px;border-radius:50%;background:var(--bfield);border:2px solid var(--surface)}
+.timeline .yr{font-weight:700;color:var(--accent);margin-right:.4rem}
+.modgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7rem;margin:.8rem 0}
+.modgrid .m{border:1px solid var(--border);border-radius:11px;padding:.7rem .8rem;background:var(--surface2)}
+.modgrid .m b{color:var(--bfield)}
+
+/* ---------- SIM CONTROLS ---------- */
 .sim-wrap{display:grid;grid-template-columns:1fr;gap:1rem}
 .controls{display:grid;gap:.85rem}
 .control label{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;margin-bottom:.25rem}
 .control label .val{color:var(--accent);font-variant-numeric:tabular-nums}
-input[type=range]{
-  -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;
-  background:var(--grid);outline:none;cursor:pointer;
-}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:var(--grid);outline:none;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);box-shadow:0 1px 3px var(--shadow);cursor:pointer}
 input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);cursor:pointer}
-input[type=range].b::-webkit-slider-thumb{background:var(--bfield)}
-input[type=range].b::-moz-range-thumb{background:var(--bfield)}
-input[type=range].a::-webkit-slider-thumb{background:var(--current)}
-input[type=range].a::-moz-range-thumb{background:var(--current)}
-
+input[type=range].b::-webkit-slider-thumb{background:var(--bfield)}input[type=range].b::-moz-range-thumb{background:var(--bfield)}
+input[type=range].a::-webkit-slider-thumb{background:var(--current)}input[type=range].a::-moz-range-thumb{background:var(--current)}
 .seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:999px;overflow:hidden;background:var(--surface2)}
 .seg button{border:none;background:transparent;color:var(--muted);padding:.4rem .75rem;font-size:.82rem;font-weight:600;cursor:pointer}
 .seg button.active{background:var(--bfield);color:#fff}
 .seg.blue button.active{background:var(--accent)}
-
 .canvas-holder{position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 canvas{display:block;width:100%;height:auto;touch-action:none}
 .readout{display:flex;flex-wrap:wrap;gap:.5rem .9rem;margin-top:.6rem;font-size:.85rem}
 .readout .chip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.25rem .55rem;font-variant-numeric:tabular-nums}
 .readout .chip b{color:var(--bfield)}
-.readout .chip.blue b{color:var(--accent)}
-.readout .chip.amber b{color:var(--current)}
-
+.readout .chip.blue b{color:var(--accent)}.readout .chip.amber b{color:var(--current)}
 .btn{border:1px solid var(--border-strong);background:var(--surface2);color:var(--ink);border-radius:9px;padding:.45rem .85rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:transform .15s,background .2s}
 .btn:hover{transform:translateY(-1px)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -215,9 +199,7 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
 .ex{border:1px solid var(--border);border-radius:12px;background:var(--surface);margin:1rem 0;overflow:hidden}
 .ex-head{display:flex;align-items:center;gap:.6rem;padding:.8rem 1rem;background:var(--surface2);cursor:pointer}
 .ex-head .lvl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.15rem .5rem;border-radius:999px}
-.lvl.b1{background:var(--good-soft);color:var(--good)}
-.lvl.b2{background:var(--current-soft);color:var(--current)}
-.lvl.b3{background:var(--bad-soft);color:var(--bad)}
+.lvl.b1{background:var(--good-soft);color:var(--good)}.lvl.b2{background:var(--current-soft);color:var(--current)}.lvl.b3{background:var(--bad-soft);color:var(--bad)}
 .ex-head .q{font-weight:600;flex:1}
 .ex-head .chev{color:var(--muted);transition:transform .25s}
 .ex.open .chev{transform:rotate(90deg)}
@@ -227,22 +209,15 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
 .answer-field{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.7rem 0}
 .answer-field input{padding:.45rem .6rem;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--ink);width:150px;font-size:.95rem}
 .feedback{margin-top:.4rem;font-size:.9rem;font-weight:600;min-height:1.2em}
-.feedback.ok{color:var(--good)}
-.feedback.no{color:var(--bad)}
+.feedback.ok{color:var(--good)}.feedback.no{color:var(--bad)}
 .solution{display:none;margin-top:.7rem;padding:.7rem .9rem;background:var(--surface2);border-radius:10px;border:1px solid var(--border)}
 .solution.show{display:block;animation:fade .25s ease}
 
 /* ---------- QUIZ ---------- */
-.quiz-picker{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
-.quiz-picker button{border:1px solid var(--border);background:var(--surface2);border-radius:10px;padding:.6rem .8rem;font-weight:600;font-size:.85rem;color:var(--ink);cursor:pointer;text-align:left;flex:1 1 150px;transition:all .2s}
-.quiz-picker button.active{border-color:var(--bfield);box-shadow:0 0 0 2px var(--bfield-soft)}
-.quiz-picker button.final{border-style:dashed}
-.quiz-picker button small{display:block;color:var(--muted);font-weight:500;margin-top:.15rem}
-
 .qcard{border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:1rem 1.05rem;margin:.9rem 0}
 .qcard .qnum{font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .qcard .qtext{font-weight:600;margin:.3rem 0 .7rem}
-.qcard .qtext .tagn{font-size:.68rem;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:.1rem .45rem;margin-left:.4rem;font-weight:700;vertical-align:middle}
+.qcard .qtext .tagn,.qnum .tagn{font-size:.68rem;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:.1rem .45rem;margin-left:.4rem;font-weight:700;vertical-align:middle}
 .opts{display:grid;gap:.5rem}
 .opt{display:flex;gap:.6rem;align-items:flex-start;border:1px solid var(--border);border-radius:9px;padding:.55rem .7rem;cursor:pointer;background:var(--surface2);transition:border-color .15s,background .15s}
 .opt:hover{border-color:var(--accent)}
@@ -252,1232 +227,937 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
 .opt.correct .mk{border-color:var(--good);color:var(--good)}
 .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
 .opt.wrong .mk{border-color:var(--bad);color:var(--bad)}
-.opt.disabled{cursor:default;opacity:.92}
+.opt.disabled{cursor:default;opacity:.95}
 .explain{display:none;margin-top:.6rem;padding:.6rem .8rem;border-radius:9px;font-size:.9rem;border:1px solid var(--border)}
 .explain.show{display:block;animation:fade .2s ease}
-.explain.ok{background:var(--good-soft);border-color:var(--good)}
-.explain.no{background:var(--bad-soft);border-color:var(--bad)}
+.explain.ok{background:var(--good-soft);border-color:var(--good)}.explain.no{background:var(--bad-soft);border-color:var(--bad)}
 .explain b{display:block;margin-bottom:.15rem}
-
 .quiz-foot{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;margin-top:1rem;position:sticky;bottom:0;background:linear-gradient(0deg,var(--bg),transparent);padding:.6rem 0}
-.progress{flex:1;min-width:160px;height:8px;background:var(--grid);border-radius:999px;overflow:hidden}
+.progress{height:8px;background:var(--grid);border-radius:999px;overflow:hidden}
 .progress > i{display:block;height:100%;width:0;background:var(--bfield);transition:width .3s}
-.score-badge{font-weight:700}
-
 .result-panel{display:none;text-align:center;padding:1.4rem}
 .result-panel.show{display:block;animation:fade .3s ease}
 .result-ring{width:130px;height:130px;margin:.5rem auto}
-.result-panel h3{margin:.4rem 0}
-
 kbd{font-family:inherit;background:var(--surface2);border:1px solid var(--border);border-bottom-width:2px;border-radius:5px;padding:.05em .4em;font-size:.85em}
-
-footer{max-width:1080px;margin:0 auto;padding:1.5rem 1rem 3rem;color:var(--muted);font-size:.82rem;border-top:1px solid var(--border);text-align:center}
-
-/* Utility */
-.hl-b{color:var(--bfield);font-weight:700}
-.hl-v{color:var(--accent);font-weight:700}
-.hl-i{color:var(--current);font-weight:700}
-.vecrow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-size:.9rem;margin:.4rem 0}
-table.tbl{width:100%;border-collapse:collapse;font-size:.9rem;margin:.7rem 0}
-table.tbl th,table.tbl td{border:1px solid var(--border);padding:.45rem .6rem;text-align:left}
-table.tbl th{background:var(--surface2)}
-.scroll-x{overflow-x:auto}
+footer{max-width:1100px;margin:0 auto;padding:1.5rem 1rem 3rem;color:var(--muted);font-size:.82rem;border-top:1px solid var(--border);text-align:center}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="header-inner">
+<header class="site-head">
+  <div class="head-row">
     <div class="brand">
-      <div class="brand-badge" aria-hidden="true"></div>
-      <div>
-        <div class="brand-title">Campo magnetico &amp; corrente alternata</div>
-        <div class="brand-sub">Fisica &middot; 5º anno &middot; Liceo scientifico</div>
-      </div>
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M4 8a8 8 0 0 1 16 0"/><path d="M4 8v5a8 8 0 0 0 16 0V8"/><circle cx="12" cy="8" r="1.6" fill="#fff" stroke="none"/></svg>
+      </span>
+      <span class="brand-txt"><b>Campo magnetico &amp; corrente alternata</b><span>Percorso interattivo &middot; Fisica 5&ordm; anno</span></span>
     </div>
     <div class="spacer"></div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Cambia tema giorno/notte">
-      <span class="icon" id="themeIcon"></span>
-      <span id="themeLabel">Notte</span>
+    <button class="theme-btn" id="themeBtn" aria-label="Cambia tema giorno/notte">
+      <span id="themeIco"></span><span id="themeLbl">Notte</span>
     </button>
   </div>
-  <nav class="tabs" id="tabs" role="tablist">
-    <button data-sec="teoria" class="active" role="tab">Teoria</button>
-    <button data-sec="sim" role="tab">Simulazioni</button>
-    <button data-sec="esercizi" role="tab">Esercizi</button>
-    <button data-sec="quiz" role="tab">Quiz</button>
-  </nav>
+  <nav id="mainNav" role="tablist" aria-label="Moduli del percorso"></nav>
 </header>
 
 <main>
 
-<!-- ================= TEORIA ================= -->
-<section class="section active" id="teoria">
-  <span class="eyebrow">Teoria</span>
-  <h2>Dal campo magnetico alla corrente alternata</h2>
-  <p class="lead muted">Quattro capitoli collegati. Prenditi il tempo che serve: alcuni concetti &mdash; la regola della mano destra e lo sfasamento tra corrente e tensione &mdash; sono tra i pi&ugrave; ostici del programma, e li affrontiamo passo dopo passo, senza dare per scontato l'intuito spaziale.</p>
+<!-- ============ MODULO: INTRODUZIONE ============ -->
+<section class="mod on" id="mod-intro" data-title="Introduzione">
+  <div class="mod-head"><span class="eyebrow">Introduzione</span>
+  <h2>Elettricità che diventa magnetismo (e ritorno)</h2></div>
 
-  <div class="subnav bacc" id="theorySub">
-    <button data-topic="t-campo" class="active">1 &middot; Campo magnetico</button>
-    <button data-topic="t-cariche">2 &middot; Cariche in moto</button>
-    <button data-topic="t-induzione">3 &middot; Induzione</button>
-    <button data-topic="t-ac">4 &middot; Corrente alternata</button>
+  <div class="card">
+    <p class="lead">Per due secoli elettricità e magnetismo erano sembrati fenomeni separati: da una parte le cariche e le pile, dall'altra le calamite e l'ago della bussola. In pochi decenni dell'Ottocento si scoprì che sono <b>due facce dello stesso fenomeno</b>. Questo percorso segue quella scoperta fino alla tecnologia che alimenta le nostre case: la <b>corrente alternata</b>.</p>
+    <p>Alcuni concetti qui sono davvero ostici &mdash; la <b>regola della mano destra</b> e lo <b>sfasamento</b> tra corrente e tensione sono tra i più impegnativi del programma. Non c'è nulla di strano se richiedono più passaggi: li affronteremo con calma, sostenuti dalle simulazioni, senza dare per scontato l'intuito spaziale.</p>
   </div>
 
-  <!-- ---- TOPIC 1: CAMPO MAGNETICO ---- -->
-  <div class="topic active" id="t-campo">
+  <div class="card">
+    <h3>I riferimenti storici</h3>
+    <ul class="timeline">
+      <li><span class="yr">1820</span><b>Hans Christian Ørsted</b> nota che l'ago di una bussola devia vicino a un filo percorso da corrente: per la prima volta l'elettricità produce un effetto magnetico. Nasce l'<b>elettromagnetismo</b>.</li>
+      <li><span class="yr">1820</span><b>André-Marie Ampère</b> e, nello stesso anno, <b>Jean-Baptiste Biot</b> e <b>Félix Savart</b> quantificano il campo generato dalle correnti e la forza tra fili percorsi da corrente.</li>
+      <li><span class="yr">1831</span><b>Michael Faraday</b> (e indipendentemente <b>Joseph Henry</b>) scopre l'<b>induzione elettromagnetica</b>: un campo magnetico che varia genera corrente. È il principio di ogni generatore.</li>
+      <li><span class="yr">1834</span><b>Heinrich Lenz</b> formula la regola sul verso delle correnti indotte: la natura si oppone sempre alla variazione.</li>
+      <li><span class="yr">1865</span><b>James Clerk Maxwell</b> unifica tutto in quattro equazioni e capisce che la luce è un'onda elettromagnetica.</li>
+      <li><span class="yr">1885&ndash;88</span><b>Galileo Ferraris</b> e <b>Nikola Tesla</b> ideano il <b>campo magnetico rotante</b> e il motore a induzione: la corrente alternata diventa pratica. È la &ldquo;guerra delle correnti&rdquo; tra il sistema in continua di Edison e quello in alternata di Tesla e Westinghouse, che vincerà per il trasporto dell'energia a grande distanza.</li>
+      <li><span class="yr">1892&ndash;95</span><b>Hendrik Lorentz</b> descrive la forza che un campo elettromagnetico esercita su una carica in moto: la <b>forza di Lorentz</b>.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Come è organizzato il percorso</h3>
+    <p>Quattro moduli tematici, più questa introduzione e un quiz finale di riepilogo. Ogni modulo ha la stessa struttura in quattro schede.</p>
+    <div class="modgrid">
+      <div class="m"><b>1 · Campo magnetico</b><br><span class="small muted">Forza di Lorentz, Biot-Savart, spira e solenoide, forza tra fili.</span></div>
+      <div class="m"><b>2 · Cariche in moto</b><br><span class="small muted">Traiettorie circolari ed elicoidali, selettore di velocità, spettrometro di massa.</span></div>
+      <div class="m"><b>3 · Induzione</b><br><span class="small muted">Flusso, Faraday-Neumann-Lenz, autoinduzione, circuiti RL.</span></div>
+      <div class="m"><b>4 · Corrente alternata</b><br><span class="small muted">Alternatore, valori efficaci, reattanze, impedenza, potenze, risonanza, trasformatore.</span></div>
+    </div>
+    <p class="small muted">In ogni modulo: <b>Teoria</b> (spiegazioni e formule), <b>Simulazioni</b> (fenomeni da manipolare), <b>Esercizi guidati</b> (con aiuti progressivi) e <b>Quiz</b> (una domanda alla volta, con riscontro). La navigazione in alto ti porta al modulo; le schede interne all'argomento.</p>
+  </div>
+
+  <div class="card tight">
+    <h3>Le grandezze che ricorrono</h3>
+    <div class="scroll-x"><table class="tbl">
+      <tr><th>Grandezza</th><th>Simbolo</th><th>Unità (SI)</th></tr>
+      <tr><td>Campo magnetico</td><td>\(B\)</td><td>tesla (T)</td></tr>
+      <tr><td>Flusso magnetico</td><td>\(\Phi_B\)</td><td>weber (Wb)</td></tr>
+      <tr><td>Induttanza</td><td>\(L\)</td><td>henry (H)</td></tr>
+      <tr><td>Reattanza / impedenza</td><td>\(X,\,Z\)</td><td>ohm (Ω)</td></tr>
+      <tr><td>Permeabilità del vuoto</td><td>\(\mu_0\)</td><td>\(4\pi\times10^{-7}\) T·m/A</td></tr>
+    </table></div>
+  </div>
+
+  <div class="secnav"><span></span><button class="next" data-goto="campo">Inizia: Campo magnetico →</button></div>
+</section>
+
+<!-- ============ MODULO 1: CAMPO MAGNETICO ============ -->
+<section class="mod" id="mod-campo" data-title="1 · Campo magnetico">
+  <div class="mod-head"><span class="eyebrow">Modulo 1</span><h2>Il campo magnetico</h2></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-pane="teoria">Teoria</button>
+    <button role="tab" aria-selected="false" data-pane="sim">Simulazioni</button>
+    <button role="tab" aria-selected="false" data-pane="ese">Esercizi guidati</button>
+    <button role="tab" aria-selected="false" data-pane="quiz">Quiz</button>
+  </div>
+
+  <div class="pane on" data-pane="teoria">
     <div class="card">
-      <h3>1.1 Il campo magnetico e la forza di Lorentz</h3>
-      <p>Una carica elettrica in moto genera attorno a s&eacute; un campo magnetico e, se si trova in un campo magnetico esterno, ne subisce una forza. Il campo magnetico si indica con il vettore <span class="hl-b">\(\vec B\)</span> e si misura in <b>tesla</b> (T).</p>
-      <p>La forza che un campo \(\vec B\) esercita su una carica \(q\) che si muove con velocit&agrave; \(\vec v\) &egrave; la <b>forza di Lorentz</b>:</p>
+      <h3>1.1 Campo magnetico e forza di Lorentz</h3>
+      <p>Una carica in moto genera un campo magnetico e, se si trova in un campo esterno, ne subisce una forza. Il campo si indica con <span class="hl-b">\(\vec B\)</span> e si misura in <b>tesla</b> (T). La <b>forza di Lorentz</b> su una carica \(q\) con velocità \(\vec v\) è:</p>
       <div class="formula-box">\[ \vec F = q\,\vec v \times \vec B \qquad\Rightarrow\qquad F = q\,v\,B\,\sin\theta \]</div>
-      <p>dove \(\theta\) &egrave; l'angolo tra \(\vec v\) e \(\vec B\). Osserva tre fatti chiave:</p>
       <ul>
-        <li>La forza &egrave; <b>massima</b> quando \(\vec v \perp \vec B\) e <b>nulla</b> quando \(\vec v \parallel \vec B\).</li>
-        <li>La forza &egrave; sempre <b>perpendicolare</b> sia a \(\vec v\) sia a \(\vec B\): non compie lavoro e non cambia il modulo della velocit&agrave;, solo la direzione.</li>
+        <li>Massima quando \(\vec v \perp \vec B\), nulla quando \(\vec v \parallel \vec B\).</li>
+        <li>Sempre <b>perpendicolare</b> a \(\vec v\) e a \(\vec B\): non compie lavoro, cambia la direzione ma non il modulo di \(\vec v\).</li>
         <li>Il verso dipende dal segno di \(q\).</li>
       </ul>
-      <div class="callout mano">
-        <span class="tag">Regola della mano destra &mdash; con calma</span>
-        Per il prodotto vettoriale \(\vec v \times \vec B\): punta le dita della <b>mano destra</b> nel verso di \(\vec v\), poi <b>chiudile</b> ruotando verso \(\vec B\); il <b>pollice</b> indica \(\vec v \times \vec B\). Per una carica <b>positiva</b> la forza ha quel verso; per una carica <b>negativa</b> il verso &egrave; opposto. Non &egrave; una formula da imparare a memoria: &egrave; uno strumento per <em>vedere</em> nello spazio. Se non ti viene subito, &egrave; normale &mdash; ci torneremo nella simulazione.
-      </div>
-      <div class="callout attenzione">
-        <span class="tag">Convenzione dei simboli</span>
-        Un campo che <b>esce</b> dal foglio verso di te si disegna con un punto \(\odot\) (la punta di una freccia); un campo che <b>entra</b> nel foglio con una croce \(\otimes\) (le penne della coda della freccia).
-      </div>
+      <div class="callout mano"><span class="tag">Regola della mano destra — con calma</span>
+        Per \(\vec v \times \vec B\): dita della <b>mano destra</b> nel verso di \(\vec v\), poi <b>chiudile</b> ruotando verso \(\vec B\); il <b>pollice</b> dà \(\vec v \times \vec B\). Per \(q>0\) la forza segue quel verso; per \(q<0\) è opposta. È uno strumento per <em>vedere</em> nello spazio: se non viene subito, è normale — la ritrovi nella simulazione.</div>
+      <div class="callout attenzione"><span class="tag">Simboli</span> Campo <b>uscente</b> dal foglio: punto \(\odot\). Campo <b>entrante</b>: croce \(\otimes\).</div>
     </div>
-
     <div class="card">
-      <h3>1.2 Campo generato da un filo: legge di Biot-Savart</h3>
-      <p>Un filo rettilineo percorso da corrente \(I\) genera un campo magnetico le cui linee sono <b>circonferenze concentriche</b> attorno al filo. A distanza \(r\):</p>
+      <h3>1.2 Campo di un filo: legge di Biot-Savart</h3>
+      <p>Un filo rettilineo con corrente \(I\) genera linee di campo a <b>circonferenze concentriche</b>. A distanza \(r\):</p>
       <div class="formula-box">\[ B = \frac{\mu_0\, I}{2\pi\, r} \]</div>
-      <p>con \(\mu_0 = 4\pi\times10^{-7}\ \text{T}\cdot\text{m/A}\) (permeabilit&agrave; magnetica del vuoto). Il campo &egrave; direttamente proporzionale alla corrente e inversamente proporzionale alla distanza.</p>
-      <div class="callout mano">
-        <span class="tag">Verso del campo di un filo</span>
-        Afferra idealmente il filo con la mano destra, <b>pollice nel verso della corrente</b>: le altre dita si avvolgono nel verso delle linee di \(\vec B\).
-      </div>
+      <p>con \(\mu_0 = 4\pi\times10^{-7}\ \text{T·m/A}\). Direttamente proporzionale a \(I\), inversamente a \(r\).</p>
+      <div class="callout mano"><span class="tag">Verso del campo</span> Afferra il filo con la mano destra, <b>pollice nel verso della corrente</b>: le dita si avvolgono nel verso di \(\vec B\).</div>
       <figure>
         <svg viewBox="0 0 320 150" width="320" role="img" aria-label="Linee di campo circolari attorno a un filo">
           <line x1="160" y1="15" x2="160" y2="135" stroke="var(--current)" stroke-width="4"/>
           <circle cx="160" cy="75" r="22" fill="none" stroke="var(--bfield)" stroke-width="2"/>
           <circle cx="160" cy="75" r="40" fill="none" stroke="var(--bfield)" stroke-width="2" opacity=".7"/>
           <circle cx="160" cy="75" r="58" fill="none" stroke="var(--bfield)" stroke-width="2" opacity=".45"/>
-          <polygon points="182,71 190,75 182,79" fill="var(--bfield)"/>
-          <polygon points="138,79 130,75 138,71" fill="var(--bfield)"/>
+          <polygon points="182,71 190,75 182,79" fill="var(--bfield)"/><polygon points="138,79 130,75 138,71" fill="var(--bfield)"/>
           <text x="168" y="26" font-size="12" fill="var(--current)">I</text>
-        </svg>
-        <figcaption>Le linee di \(\vec B\) sono circonferenze centrate sul filo.</figcaption>
+        </svg><figcaption>Linee di \(\vec B\) attorno al filo.</figcaption>
       </figure>
     </div>
-
     <div class="card">
       <h3>1.3 Spira e solenoide</h3>
-      <p>Al <b>centro di una spira</b> circolare di raggio \(R\) percorsa da corrente \(I\):</p>
-      <div class="formula-box">\[ B = \frac{\mu_0\, I}{2R} \]</div>
-      <p>Un <b>solenoide</b> &egrave; un avvolgimento di \(N\) spire su lunghezza \(L\). Al suo interno il campo &egrave; quasi uniforme e diretto lungo l'asse:</p>
-      <div class="formula-box">\[ B = \mu_0\, n\, I \qquad\text{con}\qquad n=\frac{N}{L} \]</div>
-      <p>Il solenoide &egrave; l'analogo magnetico del condensatore piano: crea una regione di campo <b>uniforme</b>, indipendente (in buona approssimazione) dalla posizione interna.</p>
+      <p>Al <b>centro di una spira</b> di raggio \(R\): \( B = \dfrac{\mu_0 I}{2R}\). Dentro un <b>solenoide</b> di \(n=N/L\) spire per metro il campo è quasi uniforme lungo l'asse:</p>
+      <div class="formula-box">\[ B = \mu_0\, n\, I \]</div>
+      <p>Il solenoide è l'analogo magnetico del condensatore piano: crea una regione di campo <b>uniforme</b>.</p>
     </div>
-
     <div class="card">
       <h3>1.4 Forza tra due fili paralleli</h3>
-      <p>Due fili paralleli a distanza \(d\), percorsi dalle correnti \(I_1\) e \(I_2\), si esercitano una forza per unit&agrave; di lunghezza:</p>
+      <p>Due fili a distanza \(d\) con correnti \(I_1,I_2\):</p>
       <div class="formula-box">\[ \frac{F}{L} = \frac{\mu_0\, I_1 I_2}{2\pi\, d} \]</div>
-      <p>Correnti <b>concordi</b> (stesso verso) &rarr; i fili si <b>attraggono</b>. Correnti <b>discordi</b> &rarr; si <b>respingono</b>. Questa relazione &egrave; alla base della vecchia definizione dell'ampere.</p>
+      <p>Correnti <b>concordi</b> → si <b>attraggono</b>; <b>discordi</b> → si <b>respingono</b>. Base della vecchia definizione dell'ampere.</p>
     </div>
   </div>
 
-  <!-- ---- TOPIC 2: CARICHE IN MOTO ---- -->
-  <div class="topic" id="t-cariche">
+  <div class="pane" data-pane="sim">
     <div class="card">
-      <h3>2.1 Moto circolare in campo uniforme</h3>
-      <p>Se una carica entra in un campo uniforme \(\vec B\) con velocit&agrave; <b>perpendicolare</b> a \(\vec B\), la forza di Lorentz &egrave; sempre perpendicolare al moto: agisce come una <b>forza centripeta</b> e la traiettoria &egrave; una <b>circonferenza</b>.</p>
-      <p>Uguagliando forza di Lorentz e forza centripeta \(qvB = \dfrac{mv^2}{r}\):</p>
-      <div class="formula-box">\[ r = \frac{m\,v}{q\,B}, \qquad T = \frac{2\pi m}{q B}, \qquad f = \frac{q B}{2\pi m} \]</div>
-      <p>Nota che il <b>periodo non dipende dalla velocit&agrave;</b>: cariche pi&ugrave; veloci percorrono cerchi pi&ugrave; grandi ma nello stesso tempo. Questa &egrave; la base del <b>ciclotrone</b>.</p>
-      <div class="callout analogia">
-        <span class="tag">Traiettoria elicoidale</span>
-        Se la velocit&agrave; ha anche una componente <b>parallela</b> a \(\vec B\), questa non subisce forza e resta costante: il moto risultante &egrave; un'<b>elica</b> (cerchio + avanzamento uniforme lungo l'asse).
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>2.2 Selettore di velocit&agrave;</h3>
-      <p>Incrociando un campo elettrico \(\vec E\) e uno magnetico \(\vec B\) perpendicolari, una carica subisce la forza elettrica \(qE\) e quella magnetica \(qvB\) in versi opposti. Solo le cariche con una <b>precisa velocit&agrave;</b> passano indisturbate (forze in equilibrio):</p>
-      <div class="formula-box">\[ qE = qvB \quad\Rightarrow\quad v = \frac{E}{B} \]</div>
-      <p>Il valore selezionato <b>non dipende</b> n&eacute; dalla carica n&eacute; dalla massa: &egrave; un filtro di velocit&agrave; puro.</p>
-    </div>
-
-    <div class="card">
-      <h3>2.3 Spettrometro di massa (cenni)</h3>
-      <p>Dopo il selettore, le cariche (tutte con la stessa \(v\)) entrano in un campo \(\vec B'\) uniforme e descrivono cerchi di raggio \(r = \dfrac{mv}{qB'}\). Misurando \(r\) si risale al rapporto massa/carica:</p>
-      <div class="formula-box">\[ \frac{m}{q} = \frac{B' \, r}{v} = \frac{B B'\, r}{E} \]</div>
-      <p>Ioni di massa diversa colpiscono il rivelatore in punti diversi: cos&igrave; si separano e si &ldquo;pesano&rdquo; gli atomi e le molecole.</p>
-    </div>
-  </div>
-
-  <!-- ---- TOPIC 3: INDUZIONE ---- -->
-  <div class="topic" id="t-induzione">
-    <div class="card">
-      <h3>3.1 Flusso del campo magnetico</h3>
-      <p>Il <b>flusso</b> di \(\vec B\) attraverso una superficie di area \(A\) misura &ldquo;quante linee di campo&rdquo; la attraversano:</p>
-      <div class="formula-box">\[ \Phi_B = \vec B \cdot \vec A = B\,A\,\cos\theta \]</div>
-      <p>dove \(\theta\) &egrave; l'angolo tra \(\vec B\) e la <b>normale</b> alla superficie. Si misura in <b>weber</b> (Wb = T&middot;m&sup2;). Il flusso cambia se cambia \(B\), se cambia \(A\), oppure se cambia l'orientazione \(\theta\).</p>
-    </div>
-
-    <div class="card">
-      <h3>3.2 Legge di Faraday-Neumann-Lenz</h3>
-      <p>Una <b>variazione</b> di flusso magnetico concatenato con un circuito induce in esso una forza elettromotrice (f.e.m.):</p>
-      <div class="formula-box">\[ \mathcal{E} = -\,\frac{d\Phi_B}{dt} \qquad(\text{per }N\text{ spire: } \mathcal{E} = -N\frac{d\Phi_B}{dt}) \]</div>
-      <p>Il <b>segno meno</b> &egrave; la <b>legge di Lenz</b>: la corrente indotta scorre in modo da <b>opporsi</b> alla variazione che l'ha generata. &Egrave; una conseguenza della conservazione dell'energia, non un capriccio del segno.</p>
-      <div class="callout analogia">
-        <span class="tag">Analogia &mdash; causa ed effetto</span>
-        Immagina di spingere un magnete verso una spira. La spira &ldquo;reagisce&rdquo; creando un campo che <b>respinge</b> il magnete in arrivo: come se non volesse essere disturbata. Se allontani il magnete, la spira cerca invece di <b>trattenerlo</b>. Il sistema si oppone sempre al <em>cambiamento</em>, mai allo stato in s&eacute;.
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>3.3 Autoinduzione e induttanza</h3>
-      <p>Anche la corrente di un circuito genera un flusso attraverso il circuito stesso. Se la corrente varia, varia questo flusso e nasce una f.e.m. <b>autoindotta</b> che si oppone alla variazione:</p>
-      <div class="formula-box">\[ \mathcal{E} = -L\,\frac{dI}{dt} \]</div>
-      <p>La costante \(L\) &egrave; l'<b>induttanza</b>, misurata in <b>henry</b> (H). Per un solenoide: \(L = \mu_0 n^2 V = \mu_0 \dfrac{N^2}{L_{\text{sol}}}A\). L'induttore &egrave; l'&ldquo;inerzia&rdquo; elettrica del circuito: si oppone alle <b>variazioni</b> di corrente, come la massa si oppone alle variazioni di velocit&agrave;.</p>
-    </div>
-
-    <div class="card">
-      <h3>3.4 Circuiti RL</h3>
-      <p>In un circuito con resistenza \(R\) e induttanza \(L\) alimentato da una tensione continua \(V\), la corrente <b>non</b> raggiunge subito il valore finale, ma cresce gradualmente:</p>
-      <div class="formula-box">\[ I(t) = \frac{V}{R}\Big(1 - e^{-t/\tau}\Big), \qquad \tau = \frac{L}{R} \]</div>
-      <p>La <b>costante di tempo</b> \(\tau\) misura la &ldquo;lentezza&rdquo; del circuito: dopo \(\tau\) la corrente ha raggiunto il 63% del valore finale; dopo \(5\tau\) &egrave; praticamente a regime. Spegnendo il circuito la corrente decade con la stessa legge esponenziale.</p>
-    </div>
-  </div>
-
-  <!-- ---- TOPIC 4: CORRENTE ALTERNATA ---- -->
-  <div class="topic" id="t-ac">
-    <div class="card">
-      <h3>4.1 Generazione della f.e.m. alternata</h3>
-      <p>Una spira di area \(A\) con \(N\) avvolgimenti che ruota con velocit&agrave; angolare \(\omega\) in un campo uniforme \(B\) ha flusso \(\Phi = NBA\cos(\omega t)\). Per la legge di Faraday:</p>
-      <div class="formula-box">\[ \mathcal{E}(t) = -\frac{d\Phi}{dt} = N B A\,\omega\,\sin(\omega t) = \mathcal{E}_0 \sin(\omega t) \]</div>
-      <p>Ecco l'<b>alternatore</b>: la rotazione meccanica produce una f.e.m. <b>sinusoidale</b> di ampiezza \(\mathcal{E}_0 = NBA\omega\). La frequenza di rete in Europa &egrave; \(f = 50\ \text{Hz}\), cio&egrave; \(\omega = 2\pi f \approx 314\ \text{rad/s}\).</p>
-    </div>
-
-    <div class="card">
-      <h3>4.2 Valori istantaneo, massimo, efficace</h3>
-      <p>Tensione e corrente alternate valgono in ogni istante \(v(t)=V_0\sin(\omega t)\) e \(i(t)=I_0\sin(\omega t)\). Il valore <b>efficace</b> (rms) &egrave; quello di una continua che dissiperebbe la stessa potenza:</p>
-      <div class="formula-box">\[ V_{\text{eff}} = \frac{V_0}{\sqrt2}, \qquad I_{\text{eff}} = \frac{I_0}{\sqrt2} \]</div>
-      <p>I &ldquo;230 V&rdquo; della rete sono un valore <b>efficace</b>: il picco vale \(V_0 = 230\sqrt2 \approx 325\ \text{V}\).</p>
-    </div>
-
-    <div class="card">
-      <h3>4.3 Resistore, condensatore, induttore in AC</h3>
-      <table class="tbl">
-        <tr><th>Elemento</th><th>Opposizione</th><th>Sfasamento \(i\) rispetto a \(v\)</th></tr>
-        <tr><td>Resistore \(R\)</td><td>\(R\) (ohm)</td><td>in fase (\(\varphi=0\))</td></tr>
-        <tr><td>Induttore \(L\)</td><td>\(X_L=\omega L\)</td><td>corrente in <b>ritardo</b> di \(90^\circ\)</td></tr>
-        <tr><td>Condensatore \(C\)</td><td>\(X_C=\dfrac{1}{\omega C}\)</td><td>corrente in <b>anticipo</b> di \(90^\circ\)</td></tr>
-      </table>
-      <div class="callout mano">
-        <span class="tag">Come ricordarlo &mdash; "ELI the ICE man"</span>
-        Nell'induttore (<b>L</b>) la tensione <b>E</b> viene prima della corrente <b>I</b> (&rarr; ELI): la corrente &egrave; in ritardo. Nel condensatore (<b>C</b>) la corrente <b>I</b> viene prima della tensione <b>E</b> (&rarr; ICE): la corrente &egrave; in anticipo.
-      </div>
-      <p class="small muted">La reattanza dipende dalla frequenza: a frequenza alta l'induttore &ldquo;blocca&rdquo; (\(X_L\) grande) e il condensatore &ldquo;lascia passare&rdquo; (\(X_C\) piccola); a frequenza bassa vale l'opposto.</p>
-    </div>
-
-    <div class="card">
-      <h3>4.4 Impedenza e sfasamento (circuito RLC serie)</h3>
-      <p>In un circuito serie R-L-C l'opposizione complessiva &egrave; l'<b>impedenza</b> \(Z\):</p>
-      <div class="formula-box">\[ Z = \sqrt{R^2 + (X_L - X_C)^2}, \qquad I_0 = \frac{V_0}{Z} \]</div>
-      <p>La corrente &egrave; sfasata rispetto alla tensione di un angolo \(\varphi\) dato da:</p>
-      <div class="formula-box">\[ \tan\varphi = \frac{X_L - X_C}{R} \]</div>
-      <div class="callout analogia">
-        <span class="tag">Sfasamento &mdash; il concetto pi&ugrave; ostico, con calma</span>
-        Lo <b>sfasamento</b> \(\varphi\) dice quanto la corrente &ldquo;segue&rdquo; o &ldquo;precede&rdquo; la tensione nel tempo. Pensa a due altalene spinte con lo stesso ritmo ma partite in momenti diversi: oscillano alla stessa frequenza, ma i loro massimi non coincidono. Se \(X_L>X_C\) il circuito &egrave; <b>induttivo</b> e la corrente &egrave; in ritardo (\(\varphi>0\)); se \(X_C>X_L\) &egrave; <b>capacitivo</b> e la corrente &egrave; in anticipo (\(\varphi<0\)). Nessuna delle due &ldquo;causa&rdquo; l'altra in ritardo: sono due grandezze che oscillano insieme, sfalsate. Nella simulazione vedrai le due onde muoversi e potrai <em>misurare</em> il ritardo.
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>4.5 Potenza in corrente alternata</h3>
-      <p>Poich&eacute; corrente e tensione sono sfasate, non tutta la potenza &ldquo;circolante&rdquo; viene realmente dissipata. Si distinguono tre potenze:</p>
-      <div class="formula-box">\[ P_{\text{attiva}} = V_{\text{eff}} I_{\text{eff}}\cos\varphi \quad(\text{W}) \]</div>
-      <div class="formula-box">\[ P_{\text{reattiva}} = V_{\text{eff}} I_{\text{eff}}\sin\varphi \ (\text{var}), \qquad P_{\text{apparente}} = V_{\text{eff}} I_{\text{eff}}\ (\text{VA}) \]</div>
-      <p>Il fattore \(\cos\varphi\) &egrave; il <b>fattore di potenza</b>: solo la potenza <b>attiva</b> compie lavoro utile / genera calore; quella <b>reattiva</b> viene scambiata avanti e indietro con condensatori e induttori senza essere consumata. Vale \(S^2 = P^2 + Q^2\) (triangolo delle potenze).</p>
-    </div>
-
-    <div class="card">
-      <h3>4.6 Risonanza RLC e trasformatore (cenni)</h3>
-      <p>Nel circuito RLC serie esiste una frequenza di <b>risonanza</b> per cui \(X_L = X_C\): l'impedenza si riduce alla sola \(R\), la corrente &egrave; massima e in fase con la tensione.</p>
-      <div class="formula-box">\[ \omega_0 = \frac{1}{\sqrt{LC}} \qquad\Rightarrow\qquad f_0 = \frac{1}{2\pi\sqrt{LC}} \]</div>
-      <p>Il <b>trasformatore</b> sfrutta l'induzione tra due avvolgimenti su un nucleo comune: il rapporto tra le tensioni uguaglia il rapporto tra il numero di spire.</p>
-      <div class="formula-box">\[ \frac{V_2}{V_1} = \frac{N_2}{N_1}, \qquad V_1 I_1 \approx V_2 I_2 \ (\text{ideale}) \]</div>
-      <p>Alza o abbassa la tensione a parit&agrave; (circa) di potenza: fondamentale per trasportare energia in alta tensione riducendo le perdite.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ================= SIMULAZIONI ================= -->
-<section class="section" id="sim">
-  <span class="eyebrow blue">Simulazioni interattive</span>
-  <h2>Osserva i fenomeni, muovi i parametri</h2>
-  <p class="lead muted">Ogni simulazione ricalcola tutto in tempo reale. Non memorizzare i grafici: gioca con gli slider e guarda cosa cambia.</p>
-
-  <div class="subnav" id="simSub">
-    <button data-topic="s-filo" class="active">Filo / spira / solenoide</button>
-    <button data-topic="s-carica">Carica in campo B</button>
-    <button data-topic="s-ac">Oscilloscopio AC</button>
-  </div>
-
-  <!-- SIM 1 -->
-  <div class="topic active" id="s-filo">
-    <div class="card">
-      <h3>Campo magnetico di filo, spira e solenoide</h3>
+      <h3>Campo di filo, spira e solenoide</h3>
       <div class="sim-wrap">
         <div class="canvas-holder"><canvas id="cvWire" width="640" height="380"></canvas></div>
         <div class="controls">
-          <div class="control">
-            <label>Configurazione</label>
-            <div class="seg" id="wireMode">
-              <button class="active" data-m="filo">Filo</button>
-              <button data-m="spira">Spira</button>
-              <button data-m="solenoide">Solenoide</button>
-            </div>
-          </div>
-          <div class="control">
-            <label>Corrente <span class="val" id="wireIval">5,0 A</span></label>
-            <input type="range" class="a" id="wireI" min="-12" max="12" step="0.5" value="5">
-          </div>
-          <div class="btn-row">
-            <button class="btn" id="wireDir">Inverti verso corrente</button>
-          </div>
-          <div class="readout">
-            <span class="chip">Configurazione: <b id="wireCfg">filo</b></span>
-            <span class="chip amber">|I| = <b id="wireIabs">5,0 A</b></span>
-            <span class="chip" id="wireBchip">B(riferimento) = <b id="wireB">—</b></span>
-          </div>
-          <p class="small muted" id="wireExpl">Le linee viola sono le linee di campo di \(\vec B\); punti e croci indicano il verso uscente/entrante rispetto al foglio. Aumenta la corrente per intensificare il campo.</p>
+          <div class="control"><label>Configurazione</label>
+            <div class="seg" id="wireMode"><button class="active" data-m="filo">Filo</button><button data-m="spira">Spira</button><button data-m="solenoide">Solenoide</button></div></div>
+          <div class="control"><label>Corrente <span class="val" id="wireIval">5,0 A</span></label><input type="range" class="a" id="wireI" min="-12" max="12" step="0.5" value="5"></div>
+          <div class="btn-row"><button class="btn" id="wireDir">Inverti verso corrente</button></div>
+          <div class="readout"><span class="chip">Config.: <b id="wireCfg">filo</b></span><span class="chip amber">|I| = <b id="wireIabs">5,0 A</b></span><span class="chip" id="wireBchip">B = <b id="wireB">—</b></span></div>
+          <p class="small muted">Linee viola = \(\vec B\); punti/croci = verso uscente/entrante. Aumenta la corrente per intensificare il campo.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SIM 2 -->
-  <div class="topic" id="s-carica">
+  <div class="pane" data-pane="ese"><div data-ex="campo"></div></div>
+  <div class="pane" data-pane="quiz"><div data-quiz="campo"></div></div>
+
+  <div class="secnav"><button data-goto="intro">← Introduzione</button><button class="next" data-goto="cariche">Cariche in moto →</button></div>
+</section>
+
+<!-- ============ MODULO 2: CARICHE IN MOTO ============ -->
+<section class="mod" id="mod-cariche" data-title="2 · Cariche in moto">
+  <div class="mod-head"><span class="eyebrow">Modulo 2</span><h2>Cariche in moto e applicazioni</h2></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-pane="teoria">Teoria</button>
+    <button role="tab" aria-selected="false" data-pane="sim">Simulazioni</button>
+    <button role="tab" aria-selected="false" data-pane="ese">Esercizi guidati</button>
+    <button role="tab" aria-selected="false" data-pane="quiz">Quiz</button>
+  </div>
+
+  <div class="pane on" data-pane="teoria">
+    <div class="card">
+      <h3>2.1 Moto circolare in campo uniforme</h3>
+      <p>Con \(\vec v \perp \vec B\), la forza di Lorentz fa da <b>forza centripeta</b>: la traiettoria è una <b>circonferenza</b>. Da \(qvB = \dfrac{mv^2}{r}\):</p>
+      <div class="formula-box">\[ r = \frac{m\,v}{q\,B}, \qquad T = \frac{2\pi m}{q B}, \qquad f = \frac{q B}{2\pi m} \]</div>
+      <p>Il <b>periodo non dipende dalla velocità</b>: è il principio del <b>ciclotrone</b>.</p>
+      <div class="callout analogia"><span class="tag">Traiettoria elicoidale</span> Una componente di \(\vec v\) <b>parallela</b> a \(\vec B\) non subisce forza e resta costante: il moto diventa un'<b>elica</b>.</div>
+    </div>
+    <div class="card">
+      <h3>2.2 Selettore di velocità</h3>
+      <p>Campi \(\vec E\) e \(\vec B\) incrociati: passano indisturbate solo le cariche con forze in equilibrio \(qE = qvB\):</p>
+      <div class="formula-box">\[ v = \frac{E}{B} \]</div>
+      <p>Non dipende da \(q\) né da \(m\): filtro di velocità puro.</p>
+    </div>
+    <div class="card">
+      <h3>2.3 Spettrometro di massa</h3>
+      <p>Dopo il selettore, in un campo \(B'\) le cariche curvano con \(r = \dfrac{mv}{qB'}\): misurando \(r\) si ricava il rapporto massa/carica.</p>
+      <div class="formula-box">\[ \frac{m}{q} = \frac{B' r}{v} \]</div>
+      <p>Ioni di massa diversa colpiscono punti diversi: si &ldquo;pesano&rdquo; gli atomi.</p>
+    </div>
+  </div>
+
+  <div class="pane" data-pane="sim">
     <div class="card">
       <h3>Carica in moto in un campo magnetico uniforme</h3>
       <div class="sim-wrap">
         <div class="canvas-holder"><canvas id="cvCharge" width="640" height="380"></canvas></div>
         <div class="controls">
-          <div class="control">
-            <label>Velocit&agrave; iniziale <span class="val" id="chVval">3,0</span></label>
-            <input type="range" class="a" id="chV" min="1" max="8" step="0.1" value="3">
-          </div>
-          <div class="control">
-            <label>Campo B (entrante) <span class="val" id="chBval">4,0</span></label>
-            <input type="range" class="b" id="chB" min="1" max="9" step="0.1" value="4">
-          </div>
-          <div class="control">
-            <label>Massa / carica (m/q) <span class="val" id="chMval">1,0</span></label>
-            <input type="range" id="chM" min="0.4" max="3" step="0.1" value="1">
-          </div>
-          <div class="control">
-            <label>Segno della carica</label>
-            <div class="seg blue" id="chSign">
-              <button class="active" data-s="1">Positiva (+)</button>
-              <button data-s="-1">Negativa (&minus;)</button>
-            </div>
-          </div>
-          <div class="btn-row">
-            <button class="btn primary" id="chLaunch">Lancia carica</button>
-            <button class="btn ghost" id="chHelix">Vista elicoidale</button>
-          </div>
-          <div class="readout">
-            <span class="chip blue">raggio r = <b id="chR">—</b></span>
-            <span class="chip">periodo T = <b id="chT">—</b></span>
-          </div>
-          <p class="small muted">\(r = \dfrac{mv}{qB}\): aumenta \(v\) o \(m/q\) e il cerchio si allarga; aumenta \(B\) e si stringe. Il campo &egrave; entrante nel foglio (croci). La forza di Lorentz &egrave; sempre perpendicolare alla traiettoria.</p>
+          <div class="control"><label>Velocità iniziale <span class="val" id="chVval">3,0</span></label><input type="range" class="a" id="chV" min="1" max="8" step="0.1" value="3"></div>
+          <div class="control"><label>Campo B (entrante) <span class="val" id="chBval">4,0</span></label><input type="range" class="b" id="chB" min="1" max="9" step="0.1" value="4"></div>
+          <div class="control"><label>Massa / carica (m/q) <span class="val" id="chMval">1,0</span></label><input type="range" id="chM" min="0.4" max="3" step="0.1" value="1"></div>
+          <div class="control"><label>Segno della carica</label><div class="seg blue" id="chSign"><button class="active" data-s="1">Positiva (+)</button><button data-s="-1">Negativa (−)</button></div></div>
+          <div class="btn-row"><button class="btn primary" id="chLaunch">Lancia carica</button><button class="btn ghost" id="chHelix">Vista elicoidale</button></div>
+          <div class="readout"><span class="chip blue">raggio r = <b id="chR">—</b></span><span class="chip">periodo T = <b id="chT">—</b></span></div>
+          <p class="small muted">\(r = \dfrac{mv}{qB}\): più \(v\) o \(m/q\) → cerchio più grande; più \(B\) → più stretto. La forza (viola) è sempre ⊥ alla traiettoria.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SIM 3 -->
-  <div class="topic" id="s-ac">
+  <div class="pane" data-pane="ese"><div data-ex="cariche"></div></div>
+  <div class="pane" data-pane="quiz"><div data-quiz="cariche"></div></div>
+
+  <div class="secnav"><button data-goto="campo">← Campo magnetico</button><button class="next" data-goto="induzione">Induzione →</button></div>
+</section>
+
+<!-- ============ MODULO 3: INDUZIONE ============ -->
+<section class="mod" id="mod-induzione" data-title="3 · Induzione">
+  <div class="mod-head"><span class="eyebrow">Modulo 3</span><h2>Induzione elettromagnetica</h2></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-pane="teoria">Teoria</button>
+    <button role="tab" aria-selected="false" data-pane="sim">Simulazioni</button>
+    <button role="tab" aria-selected="false" data-pane="ese">Esercizi guidati</button>
+    <button role="tab" aria-selected="false" data-pane="quiz">Quiz</button>
+  </div>
+
+  <div class="pane on" data-pane="teoria">
     <div class="card">
-      <h3>Oscilloscopio virtuale &mdash; circuito RLC serie in AC</h3>
+      <h3>3.1 Flusso del campo magnetico</h3>
+      <p>Il <b>flusso</b> misura quante linee attraversano una superficie di area \(A\):</p>
+      <div class="formula-box">\[ \Phi_B = \vec B \cdot \vec A = B\,A\,\cos\theta \]</div>
+      <p>\(\theta\) è l'angolo con la <b>normale</b>. Unità: <b>weber</b> (Wb = T·m²). Cambia se cambia \(B\), \(A\) o l'orientazione.</p>
+    </div>
+    <div class="card">
+      <h3>3.2 Legge di Faraday-Neumann-Lenz</h3>
+      <p>Una <b>variazione</b> di flusso induce una f.e.m.:</p>
+      <div class="formula-box">\[ \mathcal{E} = -\,N\,\frac{d\Phi_B}{dt} \]</div>
+      <p>Il <b>segno meno</b> è la <b>legge di Lenz</b>: la corrente indotta si <b>oppone</b> alla variazione. È conservazione dell'energia.</p>
+      <div class="callout analogia"><span class="tag">Analogia — causa ed effetto</span> Spingi un magnete verso una spira: la spira reagisce respingendolo, come se non volesse essere disturbata; se lo allontani, cerca di trattenerlo. Il sistema si oppone sempre al <em>cambiamento</em>.</div>
+    </div>
+    <div class="card">
+      <h3>3.3 Autoinduzione e induttanza</h3>
+      <p>Se la corrente di un circuito varia, varia il flusso che esso stesso concatena e nasce una f.e.m. <b>autoindotta</b>:</p>
+      <div class="formula-box">\[ \mathcal{E} = -L\,\frac{dI}{dt} \]</div>
+      <p>\(L\) è l'<b>induttanza</b> (henry, H). L'induttore è l'&ldquo;inerzia elettrica&rdquo;: si oppone alle <b>variazioni</b> di corrente.</p>
+    </div>
+    <div class="card">
+      <h3>3.4 Circuiti RL</h3>
+      <p>Con tensione continua \(V\), la corrente cresce gradualmente:</p>
+      <div class="formula-box">\[ I(t) = \frac{V}{R}\Big(1 - e^{-t/\tau}\Big), \qquad \tau = \frac{L}{R} \]</div>
+      <p>Dopo \(\tau\) la corrente è al 63% del valore finale; dopo \(5\tau\) è praticamente a regime. Spegnendo, decade con la stessa legge.</p>
+    </div>
+  </div>
+
+  <div class="pane" data-pane="sim">
+    <div class="card">
+      <h3>Magnete e spira: legge di Faraday-Lenz</h3>
+      <div class="sim-wrap">
+        <div class="canvas-holder"><canvas id="cvMag" width="640" height="360"></canvas></div>
+        <div class="controls">
+          <p class="small muted" style="margin-top:0">Trascina il magnete con il dito/mouse, oppure lascialo oscillare. Osserva flusso, f.e.m. indotta e verso della corrente (che si oppone alla variazione).</p>
+          <div class="control"><label>Velocità oscillazione <span class="val" id="magSval">media</span></label><input type="range" class="a" id="magSpeed" min="0" max="10" step="1" value="4"></div>
+          <div class="btn-row"><button class="btn primary" id="magToggle">Avvia oscillazione</button><button class="btn ghost" id="magFlip">Inverti poli</button></div>
+          <div class="readout"><span class="chip">Φ = <b id="magFlux">—</b></span><span class="chip blue">f.e.m. = <b id="magEmf">—</b></span><span class="chip amber">corrente: <b id="magDir">—</b></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Circuito RL: crescita e decadimento della corrente</h3>
+      <div class="sim-wrap">
+        <div class="canvas-holder"><canvas id="cvRL" width="640" height="320"></canvas></div>
+        <div class="controls">
+          <div class="control"><label>Resistenza R <span class="val" id="rlRval">40 Ω</span></label><input type="range" id="rlR" min="10" max="120" step="1" value="40"></div>
+          <div class="control"><label>Induttanza L <span class="val" id="rlLval">1,0 H</span></label><input type="range" class="b" id="rlL" min="0.2" max="4" step="0.1" value="1"></div>
+          <div class="btn-row"><button class="btn primary" id="rlSwitch">Apri interruttore</button></div>
+          <div class="readout"><span class="chip">τ = L/R = <b id="rlTau">—</b></span><span class="chip amber">I finale = <b id="rlIf">—</b></span><span class="chip blue">I(t) = <b id="rlI">—</b></span></div>
+          <p class="small muted">Curva ambra = corrente nel tempo. La linea tratteggiata è il valore finale \(V/R\); il segno τ mostra dove la corrente ha raggiunto il 63%.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane" data-pane="ese"><div data-ex="induzione"></div></div>
+  <div class="pane" data-pane="quiz"><div data-quiz="induzione"></div></div>
+
+  <div class="secnav"><button data-goto="cariche">← Cariche in moto</button><button class="next" data-goto="ac">Corrente alternata →</button></div>
+</section>
+
+<!-- ============ MODULO 4: CORRENTE ALTERNATA ============ -->
+<section class="mod" id="mod-ac" data-title="4 · Corrente alternata">
+  <div class="mod-head"><span class="eyebrow">Modulo 4</span><h2>Corrente alternata</h2></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-pane="teoria">Teoria</button>
+    <button role="tab" aria-selected="false" data-pane="sim">Simulazioni</button>
+    <button role="tab" aria-selected="false" data-pane="ese">Esercizi guidati</button>
+    <button role="tab" aria-selected="false" data-pane="quiz">Quiz</button>
+  </div>
+
+  <div class="pane on" data-pane="teoria">
+    <div class="card">
+      <h3>4.1 Generazione della f.e.m. alternata</h3>
+      <p>Una spira di \(N\) avvolgimenti e area \(A\) che ruota con velocità angolare \(\omega\) in un campo \(B\) ha flusso \(\Phi = NBA\cos(\omega t)\). Per Faraday:</p>
+      <div class="formula-box">\[ \mathcal{E}(t) = N B A\,\omega\,\sin(\omega t) = \mathcal{E}_0 \sin(\omega t) \]</div>
+      <p>È l'<b>alternatore</b>. In Europa \(f = 50\ \text{Hz}\), cioè \(\omega \approx 314\ \text{rad/s}\).</p>
+    </div>
+    <div class="card">
+      <h3>4.2 Valori istantaneo, massimo, efficace</h3>
+      <p>Il valore <b>efficace</b> (rms) è quello di una continua che dissiperebbe la stessa potenza:</p>
+      <div class="formula-box">\[ V_{\text{eff}} = \frac{V_0}{\sqrt2}, \qquad I_{\text{eff}} = \frac{I_0}{\sqrt2} \]</div>
+      <p>I &ldquo;230 V&rdquo; di rete sono efficaci: il picco è \(V_0 = 230\sqrt2 \approx 325\ \text{V}\).</p>
+    </div>
+    <div class="card">
+      <h3>4.3 Resistore, condensatore, induttore</h3>
+      <div class="scroll-x"><table class="tbl">
+        <tr><th>Elemento</th><th>Opposizione</th><th>Sfasamento \(i\) su \(v\)</th></tr>
+        <tr><td>Resistore \(R\)</td><td>\(R\)</td><td>in fase (\(\varphi=0\))</td></tr>
+        <tr><td>Induttore \(L\)</td><td>\(X_L=\omega L\)</td><td>corrente in <b>ritardo</b> di 90°</td></tr>
+        <tr><td>Condensatore \(C\)</td><td>\(X_C=\dfrac{1}{\omega C}\)</td><td>corrente in <b>anticipo</b> di 90°</td></tr>
+      </table></div>
+      <div class="callout mano"><span class="tag">Come ricordarlo — "ELI the ICE man"</span> Induttore (<b>L</b>): tensione <b>E</b> prima della corrente <b>I</b> → ELI (corrente in ritardo). Condensatore (<b>C</b>): corrente <b>I</b> prima della tensione <b>E</b> → ICE (corrente in anticipo).</div>
+    </div>
+    <div class="card">
+      <h3>4.4 Impedenza e sfasamento (RLC serie)</h3>
+      <div class="formula-box">\[ Z = \sqrt{R^2 + (X_L - X_C)^2}, \qquad \tan\varphi = \frac{X_L - X_C}{R} \]</div>
+      <div class="callout analogia"><span class="tag">Sfasamento — con calma</span> \(\varphi\) dice quanto la corrente &ldquo;segue&rdquo; o &ldquo;precede&rdquo; la tensione. Come due altalene spinte allo stesso ritmo ma partite in momenti diversi: stessa frequenza, massimi sfalsati. \(X_L>X_C\) → induttivo, corrente in ritardo (\(\varphi>0\)); \(X_C>X_L\) → capacitivo, corrente in anticipo. Nessuna &ldquo;causa&rdquo; il ritardo dell'altra: oscillano insieme, sfalsate. Nella simulazione puoi <em>misurare</em> il ritardo.</div>
+    </div>
+    <div class="card">
+      <h3>4.5 Potenza in AC</h3>
+      <div class="formula-box">\[ P_{\text{attiva}} = V_{\text{eff}} I_{\text{eff}}\cos\varphi \quad(\text{W}) \]</div>
+      <div class="formula-box">\[ P_{\text{reattiva}} = V_{\text{eff}} I_{\text{eff}}\sin\varphi\ (\text{var}),\quad P_{\text{apparente}} = V_{\text{eff}} I_{\text{eff}}\ (\text{VA}) \]</div>
+      <p>Solo la potenza <b>attiva</b> compie lavoro; la <b>reattiva</b> è scambiata avanti e indietro con \(L\) e \(C\). Vale \(S^2 = P^2 + Q^2\). Il <b>fattore di potenza</b> è \(\cos\varphi\).</p>
+    </div>
+    <div class="card">
+      <h3>4.6 Risonanza RLC e trasformatore</h3>
+      <p>Quando \(X_L = X_C\) si ha <b>risonanza</b>: \(Z=R\), corrente massima, in fase con la tensione.</p>
+      <div class="formula-box">\[ f_0 = \frac{1}{2\pi\sqrt{LC}} \]</div>
+      <p>Il <b>trasformatore</b>: \( \dfrac{V_2}{V_1} = \dfrac{N_2}{N_1}\), con \(V_1 I_1 \approx V_2 I_2\). Alza o abbassa la tensione per trasportare energia con poche perdite.</p>
+    </div>
+  </div>
+
+  <div class="pane" data-pane="sim">
+    <div class="card">
+      <h3>Oscilloscopio virtuale — RLC serie</h3>
       <div class="sim-wrap">
         <div class="canvas-holder"><canvas id="cvScope" width="640" height="360"></canvas></div>
         <div class="controls">
-          <div class="control">
-            <label>Frequenza f <span class="val" id="acFval">50 Hz</span></label>
-            <input type="range" class="a" id="acF" min="10" max="200" step="1" value="50">
-          </div>
-          <div class="control">
-            <label>Resistenza R <span class="val" id="acRval">40 Ω</span></label>
-            <input type="range" id="acR" min="5" max="120" step="1" value="40">
-          </div>
-          <div class="control">
-            <label>Induttanza L <span class="val" id="acLval">80 mH</span></label>
-            <input type="range" class="b" id="acL" min="0" max="400" step="5" value="80">
-          </div>
-          <div class="control">
-            <label>Capacit&agrave; C <span class="val" id="acCval">120 µF</span></label>
-            <input type="range" id="acC" min="20" max="600" step="5" value="120">
-          </div>
-          <div class="readout">
-            <span class="chip">X<sub>L</sub> = <b id="acXL">—</b></span>
-            <span class="chip">X<sub>C</sub> = <b id="acXC">—</b></span>
-            <span class="chip">Z = <b id="acZ">—</b></span>
-            <span class="chip blue">sfasamento φ = <b id="acPhi">—</b></span>
-            <span class="chip amber">cos φ = <b id="acCos">—</b></span>
-            <span class="chip">natura: <b id="acNat">—</b></span>
-          </div>
-          <div class="btn-row">
-            <button class="btn" id="acResonance">Vai alla risonanza</button>
-          </div>
-          <p class="small muted"><span class="hl-v">Blu</span> = tensione \(v(t)\), <span class="hl-i">ambra</span> = corrente \(i(t)\). Osserva come cambia lo <b>sfasamento</b>: quando l'onda ambra &egrave; spostata a destra rispetto alla blu, la corrente &egrave; in ritardo (circuito induttivo).</p>
+          <div class="control"><label>Frequenza f <span class="val" id="acFval">50 Hz</span></label><input type="range" class="a" id="acF" min="10" max="200" step="1" value="50"></div>
+          <div class="control"><label>Resistenza R <span class="val" id="acRval">40 Ω</span></label><input type="range" id="acR" min="5" max="120" step="1" value="40"></div>
+          <div class="control"><label>Induttanza L <span class="val" id="acLval">80 mH</span></label><input type="range" class="b" id="acL" min="0" max="400" step="5" value="80"></div>
+          <div class="control"><label>Capacità C <span class="val" id="acCval">120 µF</span></label><input type="range" id="acC" min="20" max="600" step="5" value="120"></div>
+          <div class="readout"><span class="chip">X<sub>L</sub>=<b id="acXL">—</b></span><span class="chip">X<sub>C</sub>=<b id="acXC">—</b></span><span class="chip">Z=<b id="acZ">—</b></span><span class="chip blue">φ=<b id="acPhi">—</b></span><span class="chip amber">cos φ=<b id="acCos">—</b></span><span class="chip">natura: <b id="acNat">—</b></span></div>
+          <div class="btn-row"><button class="btn" id="acResonance">Vai alla risonanza</button></div>
+          <p class="small muted"><span class="hl-v">Blu</span> = tensione, <span class="hl-i">ambra</span> = corrente. Se l'ambra è spostata a destra rispetto alla blu, la corrente è in ritardo (induttivo).</p>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="pane" data-pane="ese"><div data-ex="ac"></div></div>
+  <div class="pane" data-pane="quiz"><div data-quiz="ac"></div></div>
+
+  <div class="secnav"><button data-goto="induzione">← Induzione</button><button class="next" data-goto="finale">Quiz finale →</button></div>
 </section>
 
-<!-- ================= ESERCIZI ================= -->
-<section class="section" id="esercizi">
-  <span class="eyebrow amber">Esercizi guidati</span>
-  <h2>Problemi a difficolt&agrave; crescente</h2>
-  <p class="lead muted">Prova prima da solo. Se ti blocchi, apri gli aiuti uno alla volta: sono pensati per accompagnarti, non per darti subito la soluzione. Inserisci il risultato numerico per un riscontro immediato.</p>
-  <div id="exList"></div>
-</section>
-
-<!-- ================= QUIZ ================= -->
-<section class="section" id="quiz">
-  <span class="eyebrow">Quiz</span>
-  <h2>Verifica le tue conoscenze</h2>
-  <p class="lead muted">Scegli un quiz di sezione (riscontro immediato, con spiegazione dell'errore) oppure il quiz finale di riepilogo (punteggio solo alla fine). In ogni domanda la posizione della risposta corretta &egrave; casuale.</p>
-
-  <div class="quiz-picker" id="quizPicker"></div>
-  <div id="quizArea"></div>
+<!-- ============ MODULO: QUIZ FINALE ============ -->
+<section class="mod" id="mod-finale" data-title="Quiz finale">
+  <div class="mod-head"><span class="eyebrow blue">Riepilogo</span><h2>Quiz finale</h2></div>
+  <div class="card tight"><p class="lead" style="margin:.2rem 0">Dieci domande di teoria e cinque problemi, presi da tutti i moduli. Una domanda alla volta, puoi tornare indietro; il <b>punteggio compare solo alla fine</b>, con le spiegazioni.</p></div>
+  <div data-quiz="final"></div>
+  <div class="secnav"><button data-goto="ac">← Corrente alternata</button><button class="next" data-goto="intro">Torna all'introduzione →</button></div>
 </section>
 
 </main>
 
 <footer>
-  <p>Web app didattica &middot; Campo magnetico e corrente alternata &middot; Fisica del 5&ordm; anno.<br>
-  Realizzata come strumento di studio: rivedi la teoria, prova le simulazioni, allenati con esercizi e quiz.</p>
+  <p>Percorso interattivo &middot; Campo magnetico e corrente alternata &middot; Fisica del 5&ordm; anno.<br>Rivedi la teoria, prova le simulazioni, allenati con esercizi e quiz, modulo per modulo.</p>
 </footer>
 
 <script>
-/* =========================================================================
-   NAVIGAZIONE
-   ========================================================================= */
-const tabs = document.querySelectorAll('nav.tabs button');
-const sections = document.querySelectorAll('.section');
-tabs.forEach(b=>b.addEventListener('click',()=>{
-  tabs.forEach(x=>x.classList.remove('active'));
-  sections.forEach(s=>s.classList.remove('active'));
-  b.classList.add('active');
-  const sec=document.getElementById(b.dataset.sec);
-  sec.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-  activeSection=b.dataset.sec;
-  handleSimActivation();
-}));
-
-function setupSub(subId){
-  const wrap=document.getElementById(subId);
-  wrap.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
-    wrap.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    const parent=wrap.closest('.section');
-    parent.querySelectorAll('.topic').forEach(t=>t.classList.remove('active'));
-    document.getElementById(b.dataset.topic).classList.add('active');
-    if(subId==='simSub'){activeSim=b.dataset.topic;handleSimActivation();}
-  }));
-}
-setupSub('theorySub');
-setupSub('simSub');
-
-/* =========================================================================
-   TEMA GIORNO / NOTTE
-   ========================================================================= */
+/* ============ Utility ============ */
+const $ = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
 const root=document.documentElement;
-const themeBtn=document.getElementById('themeToggle');
-const themeLabel=document.getElementById('themeLabel');
-const themeIcon=document.getElementById('themeIcon');
+function cssVar(n){return getComputedStyle(root).getPropertyValue(n).trim();}
+function fmt(x,d=2){return Number(x).toLocaleString('it-IT',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function typeset(el){if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise(el?[el]:undefined).catch(()=>{});}
+
+/* ============ Tema giorno/notte ============ */
 const sunSVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>';
 const moonSVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+let darkMode=false;
 function applyTheme(dark){
   document.body.classList.add('theme-anim');
-  if(dark){root.setAttribute('data-theme','dark');themeLabel.textContent='Giorno';themeIcon.innerHTML=sunSVG;}
-  else{root.removeAttribute('data-theme');themeLabel.textContent='Notte';themeIcon.innerHTML=moonSVG;}
-  clearTimeout(applyTheme._t);
-  applyTheme._t=setTimeout(()=>document.body.classList.remove('theme-anim'),650);
+  if(dark){root.setAttribute('data-theme','dark');$('#themeLbl').textContent='Giorno';$('#themeIco').innerHTML=sunSVG;}
+  else{root.removeAttribute('data-theme');$('#themeLbl').textContent='Notte';$('#themeIco').innerHTML=moonSVG;}
+  clearTimeout(applyTheme._t);applyTheme._t=setTimeout(()=>document.body.classList.remove('theme-anim'),650);
 }
-let darkMode=false;
 applyTheme(false);
-themeBtn.addEventListener('click',()=>{darkMode=!darkMode;applyTheme(darkMode);});
+$('#themeBtn').addEventListener('click',()=>{darkMode=!darkMode;applyTheme(darkMode);});
 
-/* Helper per leggere le variabili CSS (i canvas devono seguire il tema) */
-function cssVar(name){return getComputedStyle(root).getPropertyValue(name).trim();}
-function fmt(x,d=2){return Number(x).toLocaleString('it-IT',{minimumFractionDigits:d,maximumFractionDigits:d});}
-
-/* =========================================================================
-   GESTIONE ANIMAZIONI (solo la sim attiva gira)
-   ========================================================================= */
-let activeSection='teoria';
-let activeSim='s-filo';
-function handleSimActivation(){
-  const scopeOn = (activeSection==='sim' && activeSim==='s-ac');
-  if(scopeOn && !scope.running){scope.running=true;requestAnimationFrame(scopeLoop);}
-  if(!scopeOn) scope.running=false;
-  const chargeOn = (activeSection==='sim' && activeSim==='s-carica');
-  if(chargeOn && !charge.running){charge.running=true;requestAnimationFrame(()=>{resetCharge();requestAnimationFrame(chargeLoop);});}
-  if(!chargeOn) charge.running=false;
-  const wireOn = (activeSection==='sim' && activeSim==='s-filo');
-  if(wireOn && !wire.running){wire.running=true;requestAnimationFrame(wireLoop);}
-  if(!wireOn) wire.running=false;
+/* ============ Navigazione moduli ============ */
+const MODULES = $$('section.mod').map(s=>({key:s.id.replace('mod-',''),el:s,title:s.dataset.title}));
+const mainNav=$('#mainNav');
+MODULES.forEach(m=>{
+  const b=document.createElement('button');b.textContent=m.title;b.dataset.goto=m.key;
+  b.setAttribute('role','tab');b.setAttribute('aria-current',m.el.classList.contains('on')?'true':'false');
+  mainNav.appendChild(b);
+});
+function goTo(key,noScroll){
+  const m=MODULES.find(x=>x.key===key);if(!m)return;
+  MODULES.forEach(x=>x.el.classList.toggle('on',x===m));
+  $$('#mainNav button').forEach(b=>b.setAttribute('aria-current',b.dataset.goto===key?'true':'false'));
+  // porta in vista il tab attivo nella barra
+  const activeBtn=$('#mainNav button[aria-current="true"]');if(activeBtn)activeBtn.scrollIntoView({inline:'center',block:'nearest'});
+  if(!noScroll)window.scrollTo({top:0,behavior:'smooth'});
+  try{history.replaceState(null,'','#'+key);}catch(e){}
+  syncSims();
 }
+document.addEventListener('click',e=>{const b=e.target.closest('[data-goto]');if(b)goTo(b.dataset.goto);});
 
-/* Canvas HiDPI setup */
+/* ============ Sotto-schede (Teoria/Sim/Esercizi/Quiz) ============ */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.tabs button');if(!b)return;
+  const sec=b.closest('section.mod');
+  $$('.tabs button',sec).forEach(x=>x.setAttribute('aria-selected',x===b?'true':'false'));
+  $$(':scope > .pane',sec).forEach(p=>p.classList.toggle('on',p.dataset.pane===b.dataset.pane));
+  syncSims();typeset(sec);
+});
+
+/* ============ HiDPI canvas ============ */
 function fitCanvas(cv){
   const dpr=Math.min(window.devicePixelRatio||1,2);
   const rect=cv.getBoundingClientRect();
   const w=rect.width||cv.width;
-  const targetH = cv.dataset.ratio ? w*parseFloat(cv.dataset.ratio) : cv.height*(w/cv.width);
-  cv.width=Math.round(w*dpr);
-  cv.height=Math.round(targetH*dpr);
-  const ctx=cv.getContext('2d');
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  return {ctx,w:w,h:targetH};
-}
-
-/* =========================================================================
-   SIM 1 — FILO / SPIRA / SOLENOIDE
-   ========================================================================= */
-const wire={mode:'filo',I:5,dir:1,running:false,phase:0};
-const cvWire=document.getElementById('cvWire');
-cvWire.dataset.ratio=0.6;
-document.querySelectorAll('#wireMode button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('#wireMode button').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');wire.mode=b.dataset.m;updateWireReadout();
-}));
-const wireI=document.getElementById('wireI');
-wireI.addEventListener('input',()=>{wire.I=parseFloat(wireI.value);updateWireReadout();});
-document.getElementById('wireDir').addEventListener('click',()=>{
-  wire.I=-wire.I; wireI.value=wire.I; updateWireReadout();
-});
-function updateWireReadout(){
-  document.getElementById('wireIval').textContent=fmt(Math.abs(wire.I),1)+' A';
-  document.getElementById('wireIabs').textContent=fmt(Math.abs(wire.I),1)+' A';
-  document.getElementById('wireCfg').textContent=wire.mode;
-  const mu=4*Math.PI*1e-7;
-  let B, label;
-  if(wire.mode==='filo'){ B=mu*Math.abs(wire.I)/(2*Math.PI*0.05); label='a 5 cm'; }
-  else if(wire.mode==='spira'){ B=mu*Math.abs(wire.I)/(2*0.05); label='al centro, R=5 cm'; }
-  else { B=mu*(500/0.3)*Math.abs(wire.I); label='interno, n=500/0,3m'; }
-  document.getElementById('wireB').textContent=(B*1000).toFixed(2)+' mT';
-  document.getElementById('wireBchip').firstChild.textContent='B '+label+' = ';
-}
-function wireLoop(){
-  if(!wire.running)return;
-  const {ctx,w,h}=fitCanvas(cvWire);
-  ctx.clearRect(0,0,w,h);
-  const bcol=cssVar('--bfield'), icol=cssVar('--current'), muted=cssVar('--muted');
-  const intensity=Math.min(Math.abs(wire.I)/12,1);
-  wire.phase+=0.012*(0.3+intensity)*(wire.I>=0?1:-1);
-  ctx.lineWidth=2;
-  if(wire.mode==='filo'){
-    const cx=w/2;
-    // filo verticale
-    ctx.strokeStyle=icol;ctx.lineWidth=5;
-    ctx.beginPath();ctx.moveTo(cx,10);ctx.lineTo(cx,h-10);ctx.stroke();
-    // freccia corrente
-    const ay=wire.I>=0?30:h-30, adir=wire.I>=0?1:-1;
-    ctx.fillStyle=icol;ctx.beginPath();ctx.moveTo(cx,ay);ctx.lineTo(cx-6,ay+10*adir);ctx.lineTo(cx+6,ay+10*adir);ctx.closePath();ctx.fill();
-    ctx.font='13px sans-serif';ctx.fillStyle=icol;ctx.fillText('I',cx+10,wire.I>=0?24:h-16);
-    // linee di campo circolari (ellissi in prospettiva)
-    for(let k=1;k<=6;k++){
-      const rr=k*26;
-      const alpha=(0.9-k*0.12)*(0.25+intensity);
-      ctx.strokeStyle=bcol;ctx.globalAlpha=Math.max(alpha,0.06);ctx.lineWidth=2;
-      ctx.beginPath();ctx.ellipse(cx,h/2,rr,rr*0.34,0,0,Math.PI*2);ctx.stroke();
-      // frecce sul verso (rotanti)
-      const t=wire.phase*2;
-      const px=cx+rr*Math.cos(t), py=h/2+rr*0.34*Math.sin(t);
-      const tang=Math.atan2(rr*0.34*Math.cos(t),-rr*Math.sin(t));
-      ctx.save();ctx.translate(px,py);ctx.rotate(tang);
-      ctx.fillStyle=bcol;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-7,-4);ctx.lineTo(-7,4);ctx.closePath();ctx.fill();
-      ctx.restore();
-    }
-    ctx.globalAlpha=1;
-  } else if(wire.mode==='spira'){
-    const cx=w/2, cy=h/2, R=Math.min(w,h)*0.32;
-    // spira (ellisse in prospettiva)
-    ctx.strokeStyle=icol;ctx.lineWidth=5;
-    ctx.beginPath();ctx.ellipse(cx,cy,R*0.45,R,0,0,Math.PI*2);ctx.stroke();
-    // campo al centro: uscente (punto) o entrante (croce)
-    const out = wire.I>=0;
-    ctx.strokeStyle=bcol;ctx.fillStyle=bcol;ctx.lineWidth=2;
-    for(let g=0;g<9;g++){
-      const gx=cx-40+ (g%3)*40, gy=cy-40+Math.floor(g/3)*40;
-      ctx.globalAlpha=0.3+intensity*0.6;
-      if(out){ctx.beginPath();ctx.arc(gx,gy,3+intensity*2,0,Math.PI*2);ctx.fill();}
-      else{const s=4+intensity*3;ctx.beginPath();ctx.moveTo(gx-s,gy-s);ctx.lineTo(gx+s,gy+s);ctx.moveTo(gx+s,gy-s);ctx.lineTo(gx-s,gy+s);ctx.stroke();}
-    }
-    ctx.globalAlpha=1;
-    // linee di campo che escono e rientrano
-    for(let s=-1;s<=1;s+=2){
-      ctx.strokeStyle=bcol;ctx.globalAlpha=0.35+intensity*0.4;ctx.lineWidth=2;
-      ctx.beginPath();
-      ctx.moveTo(cx,cy-R);
-      ctx.bezierCurveTo(cx+s*R*1.6,cy-R*0.6,cx+s*R*1.6,cy+R*0.6,cx,cy+R);
-      ctx.stroke();
-    }
-    ctx.globalAlpha=1;
-    ctx.fillStyle=muted;ctx.font='12px sans-serif';
-    ctx.fillText(out?'B uscente al centro (⊙)':'B entrante al centro (⊗)',12,h-14);
-  } else {
-    // solenoide
-    const n=9, top=h*0.34, bot=h*0.66, x0=w*0.16, x1=w*0.84;
-    ctx.strokeStyle=icol;ctx.lineWidth=4;
-    for(let k=0;k<n;k++){
-      const x=x0+(x1-x0)*k/(n-1);
-      ctx.beginPath();ctx.ellipse(x,(top+bot)/2,7,(bot-top)/2,0,0,Math.PI*2);ctx.stroke();
-    }
-    // campo interno uniforme (frecce orizzontali)
-    const dirRight=wire.I>=0;
-    ctx.strokeStyle=bcol;ctx.fillStyle=bcol;
-    for(let r=0;r<3;r++){
-      const y=top+ (bot-top)*(r+0.5)/3;
-      const off=(wire.phase*40*(dirRight?1:-1))%50;
-      for(let x=x0+ (off+50)%50; x<x1; x+=50){
-        ctx.globalAlpha=0.35+intensity*0.55;ctx.lineWidth=2;
-        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+18,y);ctx.stroke();
-        const tip=dirRight?x+18:x;const back=dirRight?x+10:x+8;
-        ctx.beginPath();ctx.moveTo(tip,y);ctx.lineTo(back,y-4);ctx.lineTo(back,y+4);ctx.closePath();ctx.fill();
-      }
-    }
-    ctx.globalAlpha=1;
-    ctx.fillStyle=muted;ctx.font='12px sans-serif';
-    ctx.fillText('Campo interno uniforme, verso '+(dirRight?'→':'←'),12,h-14);
-  }
-  requestAnimationFrame(wireLoop);
-}
-
-/* =========================================================================
-   SIM 2 — CARICA IN CAMPO B
-   ========================================================================= */
-const charge={v:3,B:4,mq:1,sign:1,running:false,helix:false,
-  x:0,y:0,vx:0,vy:0,trail:[],t:0,z:0};
-const cvCharge=document.getElementById('cvCharge');
-cvCharge.dataset.ratio=0.6;
-function bindRange(id,valId,fn,unit='',dec=1){
-  const el=document.getElementById(id);
-  el.addEventListener('input',()=>{document.getElementById(valId).textContent=fmt(parseFloat(el.value),dec)+unit;fn(parseFloat(el.value));});
-}
-bindRange('chV','chVval',v=>{charge.v=v;resetCharge();},'',1);
-bindRange('chB','chBval',v=>{charge.B=v;resetCharge();},'',1);
-bindRange('chM','chMval',v=>{charge.mq=v;resetCharge();},'',1);
-document.querySelectorAll('#chSign button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('#chSign button').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');charge.sign=parseInt(b.dataset.s);resetCharge();
-}));
-document.getElementById('chLaunch').addEventListener('click',resetCharge);
-document.getElementById('chHelix').addEventListener('click',()=>{charge.helix=!charge.helix;resetCharge();});
-function resetCharge(){
-  const {w,h}=fitCanvas(cvCharge);
-  charge.x=w*0.5; charge.y=h*0.5; charge.z=0; charge.t=0;
-  charge.vx=charge.v*24; charge.vy=0;
-  charge.trail=[];
-  // readout raggio e periodo (unità arbitrarie coerenti)
-  const r=charge.mq*charge.v/charge.B;
-  const T=2*Math.PI*charge.mq/charge.B;
-  document.getElementById('chR').textContent=fmt(r*10,1)+' (u.a.)';
-  document.getElementById('chT').textContent=fmt(T,2)+' (u.a.)';
-}
-function chargeLoop(){
-  if(!charge.running)return;
-  const {ctx,w,h}=fitCanvas(cvCharge);
-  ctx.clearRect(0,0,w,h);
-  const bcol=cssVar('--bfield'), acol=cssVar('--current'), vcol=cssVar('--accent'), muted=cssVar('--muted');
-  // sfondo: campo entrante (croci)
-  ctx.strokeStyle=bcol;ctx.globalAlpha=0.22;ctx.lineWidth=1.4;
-  for(let gx=30;gx<w;gx+=48)for(let gy=26;gy<h;gy+=48){
-    const s=3;ctx.beginPath();ctx.moveTo(gx-s,gy-s);ctx.lineTo(gx+s,gy+s);ctx.moveTo(gx+s,gy-s);ctx.lineTo(gx-s,gy+s);ctx.stroke();
-  }
-  ctx.globalAlpha=1;
-  ctx.fillStyle=muted;ctx.font='12px sans-serif';ctx.fillText('B entrante nel foglio (⊗)',12,18);
-
-  // fisica: F = q v x B  (B fuori dal foglio negativo => entrante). Con B entrante (-z),
-  // per q>0: la forza fa curvare in senso orario per v verso destra.
-  const dt=0.16;
-  const qB = charge.sign*charge.B/charge.mq; // frequenza angolare segnata
-  // rotazione della velocità: dv/dt = omega * (perp). Per B entrante e q>0 => senso orario.
-  const omega = qB*0.9; // scala
-  const cosw=Math.cos(-omega*dt), sinw=Math.sin(-omega*dt);
-  const nvx=charge.vx*cosw - charge.vy*sinw;
-  const nvy=charge.vx*sinw + charge.vy*cosw;
-  charge.vx=nvx;charge.vy=nvy;
-  charge.x+=charge.vx*dt; charge.y+=charge.vy*dt;
-  if(charge.helix) charge.z+=charge.v*6*dt;
-  charge.t+=dt;
-
-  // wrap-around morbido
-  if(charge.x<10||charge.x>w-10||charge.y<10||charge.y>h-10){
-    if(charge.x<10)charge.x=10; if(charge.x>w-10)charge.x=w-10;
-    if(charge.y<10)charge.y=10; if(charge.y>h-10)charge.y=h-10;
-  }
-  const drawY = charge.helix ? charge.y*0.5+h*0.25 : charge.y;
-  const drawX = charge.helix ? charge.x - (charge.z%w) : charge.x;
-  charge.trail.push({x:drawX,y:drawY});
-  if(charge.trail.length>420)charge.trail.shift();
-
-  // scia
-  ctx.strokeStyle=vcol;ctx.lineWidth=2;ctx.beginPath();
-  charge.trail.forEach((p,i)=>{i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);});
-  ctx.stroke();
-
-  // vettore velocità e forza
-  const px=drawX, py=drawY;
-  const vlen=30;
-  const sp=Math.hypot(charge.vx,charge.vy)||1;
-  ctx.strokeStyle=acol;ctx.lineWidth=2.5;
-  drawArrow(ctx,px,py,px+charge.vx/sp*vlen,py+charge.vy/sp*vlen,acol);
-  // forza = q v x B (perp alla v)
-  const fx=charge.vy, fy=-charge.vx;
-  const fn=Math.hypot(fx,fy)||1;
-  const fdir=charge.sign; // verso
-  drawArrow(ctx,px,py,px+fdir*fx/fn*22,py+fdir*fy/fn*22,bcol);
-
-  // particella
-  ctx.fillStyle=charge.sign>0?acol:vcol;
-  ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(charge.sign>0?'+':'–',px,py);ctx.textAlign='start';ctx.textBaseline='alphabetic';
-
-  // legenda
-  ctx.font='12px sans-serif';
-  ctx.fillStyle=acol;ctx.fillText('v (velocità)',w-120,h-30);
-  ctx.fillStyle=bcol;ctx.fillText('F (Lorentz)',w-120,h-14);
-
-  requestAnimationFrame(chargeLoop);
+  const targetH=cv.dataset.ratio?w*parseFloat(cv.dataset.ratio):cv.height*(w/cv.width);
+  cv.width=Math.round(w*dpr);cv.height=Math.round(targetH*dpr);
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w,h:targetH};
 }
 function drawArrow(ctx,x1,y1,x2,y2,col){
   ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=2.5;
   ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
   const a=Math.atan2(y2-y1,x2-x1);
-  ctx.beginPath();ctx.moveTo(x2,y2);
-  ctx.lineTo(x2-8*Math.cos(a-0.4),y2-8*Math.sin(a-0.4));
-  ctx.lineTo(x2-8*Math.cos(a+0.4),y2-8*Math.sin(a+0.4));
-  ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-8*Math.cos(a-0.4),y2-8*Math.sin(a-0.4));ctx.lineTo(x2-8*Math.cos(a+0.4),y2-8*Math.sin(a+0.4));ctx.closePath();ctx.fill();
 }
 
-/* =========================================================================
-   SIM 3 — OSCILLOSCOPIO AC (RLC serie)
-   ========================================================================= */
+/* ===================================================================
+   SIM 1 — FILO / SPIRA / SOLENOIDE
+   =================================================================== */
+const cvWire=$('#cvWire');cvWire.dataset.ratio=0.6;
+const wire={mode:'filo',I:5,running:false,phase:0};
+$$('#wireMode button').forEach(b=>b.addEventListener('click',()=>{$$('#wireMode button').forEach(x=>x.classList.remove('active'));b.classList.add('active');wire.mode=b.dataset.m;updateWireReadout();}));
+$('#wireI').addEventListener('input',e=>{wire.I=parseFloat(e.target.value);updateWireReadout();});
+$('#wireDir').addEventListener('click',()=>{wire.I=-wire.I;$('#wireI').value=wire.I;updateWireReadout();});
+function updateWireReadout(){
+  $('#wireIval').textContent=fmt(Math.abs(wire.I),1)+' A';$('#wireIabs').textContent=fmt(Math.abs(wire.I),1)+' A';$('#wireCfg').textContent=wire.mode;
+  const mu=4*Math.PI*1e-7;let B,label;
+  if(wire.mode==='filo'){B=mu*Math.abs(wire.I)/(2*Math.PI*0.05);label='a 5 cm';}
+  else if(wire.mode==='spira'){B=mu*Math.abs(wire.I)/(2*0.05);label='al centro (R=5 cm)';}
+  else{B=mu*(500/0.3)*Math.abs(wire.I);label='interno';}
+  $('#wireB').textContent=(B*1000).toFixed(2)+' mT';$('#wireBchip').firstChild.textContent='B '+label+' = ';
+}
+function wireLoop(){
+  if(!wire.running)return;
+  const {ctx,w,h}=fitCanvas(cvWire);ctx.clearRect(0,0,w,h);
+  const bcol=cssVar('--bfield'),icol=cssVar('--current'),muted=cssVar('--muted');
+  const intensity=Math.min(Math.abs(wire.I)/12,1);
+  wire.phase+=0.012*(0.3+intensity)*(wire.I>=0?1:-1);
+  if(wire.mode==='filo'){
+    const cx=w/2;ctx.strokeStyle=icol;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(cx,10);ctx.lineTo(cx,h-10);ctx.stroke();
+    const ay=wire.I>=0?30:h-30,adir=wire.I>=0?1:-1;ctx.fillStyle=icol;ctx.beginPath();ctx.moveTo(cx,ay);ctx.lineTo(cx-6,ay+10*adir);ctx.lineTo(cx+6,ay+10*adir);ctx.closePath();ctx.fill();
+    ctx.font='13px sans-serif';ctx.fillStyle=icol;ctx.fillText('I',cx+10,wire.I>=0?24:h-16);
+    for(let k=1;k<=6;k++){const rr=k*26,alpha=(0.9-k*0.12)*(0.25+intensity);ctx.strokeStyle=bcol;ctx.globalAlpha=Math.max(alpha,0.06);ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,h/2,rr,rr*0.34,0,0,Math.PI*2);ctx.stroke();
+      const t=wire.phase*2,px=cx+rr*Math.cos(t),py=h/2+rr*0.34*Math.sin(t),tang=Math.atan2(rr*0.34*Math.cos(t),-rr*Math.sin(t));
+      ctx.save();ctx.translate(px,py);ctx.rotate(tang);ctx.fillStyle=bcol;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-7,-4);ctx.lineTo(-7,4);ctx.closePath();ctx.fill();ctx.restore();}
+    ctx.globalAlpha=1;
+  }else if(wire.mode==='spira'){
+    const cx=w/2,cy=h/2,R=Math.min(w,h)*0.32;ctx.strokeStyle=icol;ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(cx,cy,R*0.45,R,0,0,Math.PI*2);ctx.stroke();
+    const out=wire.I>=0;ctx.strokeStyle=bcol;ctx.fillStyle=bcol;ctx.lineWidth=2;
+    for(let g=0;g<9;g++){const gx=cx-40+(g%3)*40,gy=cy-40+Math.floor(g/3)*40;ctx.globalAlpha=0.3+intensity*0.6;
+      if(out){ctx.beginPath();ctx.arc(gx,gy,3+intensity*2,0,Math.PI*2);ctx.fill();}else{const s=4+intensity*3;ctx.beginPath();ctx.moveTo(gx-s,gy-s);ctx.lineTo(gx+s,gy+s);ctx.moveTo(gx+s,gy-s);ctx.lineTo(gx-s,gy+s);ctx.stroke();}}
+    ctx.globalAlpha=1;
+    for(let s=-1;s<=1;s+=2){ctx.strokeStyle=bcol;ctx.globalAlpha=0.35+intensity*0.4;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,cy-R);ctx.bezierCurveTo(cx+s*R*1.6,cy-R*0.6,cx+s*R*1.6,cy+R*0.6,cx,cy+R);ctx.stroke();}
+    ctx.globalAlpha=1;ctx.fillStyle=muted;ctx.font='12px sans-serif';ctx.fillText(out?'B uscente al centro (⊙)':'B entrante al centro (⊗)',12,h-14);
+  }else{
+    const n=9,top=h*0.34,bot=h*0.66,x0=w*0.16,x1=w*0.84;ctx.strokeStyle=icol;ctx.lineWidth=4;
+    for(let k=0;k<n;k++){const x=x0+(x1-x0)*k/(n-1);ctx.beginPath();ctx.ellipse(x,(top+bot)/2,7,(bot-top)/2,0,0,Math.PI*2);ctx.stroke();}
+    const dirRight=wire.I>=0;ctx.strokeStyle=bcol;ctx.fillStyle=bcol;
+    for(let r=0;r<3;r++){const y=top+(bot-top)*(r+0.5)/3,off=(wire.phase*40*(dirRight?1:-1))%50;
+      for(let x=x0+(off+50)%50;x<x1;x+=50){ctx.globalAlpha=0.35+intensity*0.55;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+18,y);ctx.stroke();const tip=dirRight?x+18:x,back=dirRight?x+10:x+8;ctx.beginPath();ctx.moveTo(tip,y);ctx.lineTo(back,y-4);ctx.lineTo(back,y+4);ctx.closePath();ctx.fill();}}
+    ctx.globalAlpha=1;ctx.fillStyle=muted;ctx.font='12px sans-serif';ctx.fillText('Campo interno uniforme, verso '+(dirRight?'→':'←'),12,h-14);
+  }
+  requestAnimationFrame(wireLoop);
+}
+
+/* ===================================================================
+   SIM 2 — CARICA IN CAMPO B
+   =================================================================== */
+const cvCharge=$('#cvCharge');cvCharge.dataset.ratio=0.6;
+const charge={v:3,B:4,mq:1,sign:1,running:false,helix:false,x:0,y:0,vx:0,vy:0,trail:[],z:0};
+function bindRange(id,valId,fn,unit='',dec=1){const el=$('#'+id);el.addEventListener('input',()=>{$('#'+valId).textContent=fmt(parseFloat(el.value),dec)+unit;fn(parseFloat(el.value));});}
+bindRange('chV','chVval',v=>{charge.v=v;resetCharge();});
+bindRange('chB','chBval',v=>{charge.B=v;resetCharge();});
+bindRange('chM','chMval',v=>{charge.mq=v;resetCharge();});
+$$('#chSign button').forEach(b=>b.addEventListener('click',()=>{$$('#chSign button').forEach(x=>x.classList.remove('active'));b.classList.add('active');charge.sign=parseInt(b.dataset.s);resetCharge();}));
+$('#chLaunch').addEventListener('click',resetCharge);
+$('#chHelix').addEventListener('click',()=>{charge.helix=!charge.helix;resetCharge();});
+function resetCharge(){
+  const {w,h}=fitCanvas(cvCharge);charge.x=w*0.5;charge.y=h*0.5;charge.z=0;charge.vx=charge.v*24;charge.vy=0;charge.trail=[];
+  const r=charge.mq*charge.v/charge.B,T=2*Math.PI*charge.mq/charge.B;
+  $('#chR').textContent=fmt(r*10,1)+' (u.a.)';$('#chT').textContent=fmt(T,2)+' (u.a.)';
+}
+function chargeLoop(){
+  if(!charge.running)return;
+  const {ctx,w,h}=fitCanvas(cvCharge);ctx.clearRect(0,0,w,h);
+  const bcol=cssVar('--bfield'),acol=cssVar('--current'),vcol=cssVar('--accent'),muted=cssVar('--muted');
+  ctx.strokeStyle=bcol;ctx.globalAlpha=0.22;ctx.lineWidth=1.4;
+  for(let gx=30;gx<w;gx+=48)for(let gy=26;gy<h;gy+=48){const s=3;ctx.beginPath();ctx.moveTo(gx-s,gy-s);ctx.lineTo(gx+s,gy+s);ctx.moveTo(gx+s,gy-s);ctx.lineTo(gx-s,gy+s);ctx.stroke();}
+  ctx.globalAlpha=1;ctx.fillStyle=muted;ctx.font='12px sans-serif';ctx.fillText('B entrante nel foglio (⊗)',12,18);
+  const dt=0.16,omega=charge.sign*charge.B/charge.mq*0.9;
+  const cosw=Math.cos(-omega*dt),sinw=Math.sin(-omega*dt);
+  const nvx=charge.vx*cosw-charge.vy*sinw,nvy=charge.vx*sinw+charge.vy*cosw;charge.vx=nvx;charge.vy=nvy;
+  charge.x+=charge.vx*dt;charge.y+=charge.vy*dt;if(charge.helix)charge.z+=charge.v*6*dt;
+  if(charge.x<10)charge.x=10;if(charge.x>w-10)charge.x=w-10;if(charge.y<10)charge.y=10;if(charge.y>h-10)charge.y=h-10;
+  const drawY=charge.helix?charge.y*0.5+h*0.25:charge.y,drawX=charge.helix?charge.x-(charge.z%w):charge.x;
+  charge.trail.push({x:drawX,y:drawY});if(charge.trail.length>420)charge.trail.shift();
+  ctx.strokeStyle=vcol;ctx.lineWidth=2;ctx.beginPath();charge.trail.forEach((p,i)=>{i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);});ctx.stroke();
+  const px=drawX,py=drawY,vlen=30,sp=Math.hypot(charge.vx,charge.vy)||1;
+  drawArrow(ctx,px,py,px+charge.vx/sp*vlen,py+charge.vy/sp*vlen,acol);
+  const fx=charge.vy,fy=-charge.vx,fn=Math.hypot(fx,fy)||1;drawArrow(ctx,px,py,px+charge.sign*fx/fn*22,py+charge.sign*fy/fn*22,bcol);
+  ctx.fillStyle=charge.sign>0?acol:vcol;ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(charge.sign>0?'+':'–',px,py);ctx.textAlign='start';ctx.textBaseline='alphabetic';
+  ctx.font='12px sans-serif';ctx.fillStyle=acol;ctx.fillText('v (velocità)',w-120,h-30);ctx.fillStyle=bcol;ctx.fillText('F (Lorentz)',w-120,h-14);
+  requestAnimationFrame(chargeLoop);
+}
+
+/* ===================================================================
+   SIM 3 — MAGNETE + SPIRA (Faraday-Lenz)
+   =================================================================== */
+const cvMag=$('#cvMag');cvMag.dataset.ratio=0.56;
+const mag={x:0.15,dir:1,osc:false,speed:4,flip:false,running:false,prevFlux:null,emf:0,hist:[],dragging:false};
+$('#magSpeed').addEventListener('input',e=>{mag.speed=parseFloat(e.target.value);$('#magSval').textContent=mag.speed<3?'lenta':mag.speed<7?'media':'rapida';});
+$('#magToggle').addEventListener('click',e=>{mag.osc=!mag.osc;e.target.textContent=mag.osc?'Ferma oscillazione':'Avvia oscillazione';});
+$('#magFlip').addEventListener('click',()=>{mag.flip=!mag.flip;});
+function magPointer(clientX){const rect=cvMag.getBoundingClientRect();mag.x=Math.max(0.05,Math.min(0.95,(clientX-rect.left)/rect.width));}
+cvMag.addEventListener('pointerdown',e=>{mag.dragging=true;mag.osc=false;$('#magToggle').textContent='Avvia oscillazione';magPointer(e.clientX);cvMag.setPointerCapture(e.pointerId);});
+cvMag.addEventListener('pointermove',e=>{if(mag.dragging)magPointer(e.clientX);});
+cvMag.addEventListener('pointerup',()=>{mag.dragging=false;});
+function fluxAt(coilXfrac){const u=(mag.x-coilXfrac)*6;return Math.exp(-u*u);} // bump function
+function magLoop(){
+  if(!mag.running)return;
+  const {ctx,w,h}=fitCanvas(cvMag);ctx.clearRect(0,0,w,h);
+  const bcol=cssVar('--bfield'),acol=cssVar('--current'),vcol=cssVar('--accent'),muted=cssVar('--muted'),surf=cssVar('--surface2'),grid=cssVar('--grid');
+  const coilXfrac=0.62,coilX=w*coilXfrac,coilY=h*0.42,coilR=Math.min(h*0.24,80);
+  // moto automatico
+  if(mag.osc&&!mag.dragging){mag.x+=mag.dir*(0.002+mag.speed*0.0011);if(mag.x>0.9){mag.x=0.9;mag.dir=-1;}if(mag.x<0.12){mag.x=0.12;mag.dir=1;}}
+  // flusso e f.e.m.
+  const flux=fluxAt(coilXfrac)*(mag.flip?-1:1);
+  if(mag.prevFlux===null)mag.prevFlux=flux;
+  const dflux=flux-mag.prevFlux;mag.emf=-dflux*60;mag.prevFlux=flux;
+  mag.hist.push(mag.emf);if(mag.hist.length>200)mag.hist.shift();
+  // spira (ellisse in prospettiva)
+  const induced=mag.emf;
+  ctx.strokeStyle=Math.abs(induced)>0.15?acol:muted;ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(coilX,coilY,coilR*0.42,coilR,0,0,Math.PI*2);ctx.stroke();
+  // frecce di corrente indotta sulla spira
+  if(Math.abs(induced)>0.12){const cw=induced>0?1:-1;ctx.fillStyle=acol;for(let k=0;k<2;k++){const ang=k*Math.PI+Math.PI/2*cw;const ex=coilX+coilR*0.42*Math.cos(ang),ey=coilY+coilR*Math.sin(ang);ctx.save();ctx.translate(ex,ey);ctx.rotate(ang+(cw>0?Math.PI/2:-Math.PI/2));ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-8,-5);ctx.lineTo(-8,5);ctx.closePath();ctx.fill();ctx.restore();}}
+  // magnete (barra) — N = viola/bfield, S = blu/accent (niente rosso-verde)
+  const mx=w*mag.x,my=coilY,mw=w*0.16,mh=h*0.16;
+  const leftPole=mag.flip?vcol:bcol,rightPole=mag.flip?bcol:vcol,leftLbl=mag.flip?'S':'N',rightLbl=mag.flip?'N':'S';
+  ctx.fillStyle=leftPole;ctx.fillRect(mx-mw/2,my-mh/2,mw/2,mh);ctx.fillStyle=rightPole;ctx.fillRect(mx,my-mh/2,mw/2,mh);
+  ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(leftLbl,mx-mw/4,my);ctx.fillText(rightLbl,mx+mw/4,my);ctx.textAlign='start';ctx.textBaseline='alphabetic';
+  // galvanometro (needle) in basso a sinistra
+  const gx=w*0.16,gy=h*0.82,gr=26;ctx.strokeStyle=muted;ctx.fillStyle=surf;ctx.lineWidth=2;ctx.beginPath();ctx.arc(gx,gy,gr,Math.PI,0);ctx.fill();ctx.stroke();
+  const ang=-Math.PI/2+Math.max(-1,Math.min(1,induced*1.4))*Math.PI/2.4;ctx.strokeStyle=vcol;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+gr*0.85*Math.cos(ang),gy+gr*0.85*Math.sin(ang));ctx.stroke();
+  ctx.fillStyle=muted;ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('galvanometro',gx,gy+16);ctx.textAlign='start';
+  // grafico f.e.m. a destra in basso
+  const g0x=w*0.34,g1x=w*0.96,gyc=h*0.86,gamp=h*0.1;ctx.strokeStyle=grid;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(g0x,gyc);ctx.lineTo(g1x,gyc);ctx.stroke();
+  ctx.strokeStyle=vcol;ctx.lineWidth=2;ctx.beginPath();mag.hist.forEach((v,i)=>{const x=g0x+(g1x-g0x)*i/200,y=gyc-Math.max(-1,Math.min(1,v))*gamp;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();
+  ctx.fillStyle=muted;ctx.font='11px sans-serif';ctx.fillText('f.e.m. indotta nel tempo',g0x,gyc-gamp-6);
+  // readout
+  $('#magFlux').textContent=fmt(flux,2)+' (u.a.)';
+  $('#magEmf').textContent=fmt(mag.emf,2)+' (u.a.)';
+  $('#magDir').textContent=Math.abs(induced)<0.12?'ferma':(induced>0?'antioraria':'oraria');
+  requestAnimationFrame(magLoop);
+}
+
+/* ===================================================================
+   SIM 4 — CIRCUITO RL
+   =================================================================== */
+const cvRL=$('#cvRL');cvRL.dataset.ratio=0.5;
+const rl={R:40,L:1,closed:true,running:false,t:0,V:10};
+$('#rlR').addEventListener('input',e=>{rl.R=parseFloat(e.target.value);$('#rlRval').textContent=rl.R+' Ω';rl.t=0;updateRLreadout();});
+$('#rlL').addEventListener('input',e=>{rl.L=parseFloat(e.target.value);$('#rlLval').textContent=fmt(rl.L,1)+' H';rl.t=0;updateRLreadout();});
+$('#rlSwitch').addEventListener('click',e=>{rl.closed=!rl.closed;rl.t=0;e.target.textContent=rl.closed?'Apri interruttore':'Chiudi interruttore';});
+function updateRLreadout(){const tau=rl.L/rl.R,If=rl.V/rl.R;$('#rlTau').textContent=fmt(tau*1000,0)+' ms';$('#rlIf').textContent=fmt(If*1000,0)+' mA';}
+function resetRL(){rl.t=0;updateRLreadout();}
+function rlLoop(){
+  if(!rl.running)return;
+  const {ctx,w,h}=fitCanvas(cvRL);ctx.clearRect(0,0,w,h);
+  const acol=cssVar('--current'),muted=cssVar('--muted'),grid=cssVar('--grid'),vcol=cssVar('--accent');
+  const tau=rl.L/rl.R,If=rl.V/rl.R,total=5*tau;
+  rl.t+=0.016;if(rl.t>total)rl.t=total; // ferma a regime
+  const pad=38,x0=pad,x1=w-12,y0=14,y1=h-26;
+  // assi
+  ctx.strokeStyle=grid;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x1,y1);ctx.moveTo(x0,y0);ctx.lineTo(x0,y1);ctx.stroke();
+  // linea valore finale
+  ctx.strokeStyle=muted;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(x0,y0+6);ctx.lineTo(x1,y0+6);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=muted;ctx.font='11px sans-serif';ctx.fillText('I finale = V/R',x0+6,y0+2);
+  const Imap=I=>y1-(I/If)*(y1-y0-6);
+  // curva
+  ctx.strokeStyle=acol;ctx.lineWidth=2.5;ctx.beginPath();
+  const N=160;for(let i=0;i<=N;i++){const tt=total*i/N;if(tt>rl.t)break;const I=rl.closed?If*(1-Math.exp(-tt/tau)):If*Math.exp(-tt/tau);const x=x0+(x1-x0)*tt/total,y=Imap(I);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}
+  ctx.stroke();
+  // punto corrente
+  const Inow=rl.closed?If*(1-Math.exp(-rl.t/tau)):If*Math.exp(-rl.t/tau);const xn=x0+(x1-x0)*rl.t/total,yn=Imap(Inow);
+  ctx.fillStyle=acol;ctx.beginPath();ctx.arc(xn,yn,5,0,Math.PI*2);ctx.fill();
+  // marker tau
+  const xtau=x0+(x1-x0)*tau/total;ctx.strokeStyle=vcol;ctx.globalAlpha=.6;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(xtau,y0);ctx.lineTo(xtau,y1);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+  ctx.fillStyle=vcol;ctx.font='11px sans-serif';ctx.fillText('τ',xtau+3,y1-4);
+  ctx.fillStyle=muted;ctx.fillText(rl.closed?'chiusura (crescita)':'apertura (decadimento)',x1-140,y1-6);
+  $('#rlI').textContent=fmt(Inow*1000,0)+' mA';
+  requestAnimationFrame(rlLoop);
+}
+
+/* ===================================================================
+   SIM 5 — OSCILLOSCOPIO AC (RLC serie)
+   =================================================================== */
+const cvScope=$('#cvScope');cvScope.dataset.ratio=0.56;
 const scope={f:50,R:40,L:0.08,C:120e-6,running:false,t:0};
-const cvScope=document.getElementById('cvScope');
-cvScope.dataset.ratio=0.56;
 bindRange('acF','acFval',v=>{scope.f=v;updateScope();},' Hz',0);
 bindRange('acR','acRval',v=>{scope.R=v;updateScope();},' Ω',0);
-document.getElementById('acL').addEventListener('input',e=>{
-  scope.L=parseFloat(e.target.value)/1000;
-  document.getElementById('acLval').textContent=e.target.value+' mH';updateScope();
-});
-document.getElementById('acC').addEventListener('input',e=>{
-  scope.C=parseFloat(e.target.value)*1e-6;
-  document.getElementById('acCval').textContent=e.target.value+' µF';updateScope();
-});
-document.getElementById('acResonance').addEventListener('click',()=>{
-  // porta f alla risonanza: f0 = 1/(2π√(LC))
-  const L=scope.L, C=scope.C;
-  let f0=1/(2*Math.PI*Math.sqrt(L*C));
-  f0=Math.max(10,Math.min(200,Math.round(f0)));
-  document.getElementById('acF').value=f0;scope.f=f0;
-  document.getElementById('acFval').textContent=f0+' Hz';
-  updateScope();
-});
-let scopePhi=0, scopeZ=1, scopeImax=1;
+$('#acL').addEventListener('input',e=>{scope.L=parseFloat(e.target.value)/1000;$('#acLval').textContent=e.target.value+' mH';updateScope();});
+$('#acC').addEventListener('input',e=>{scope.C=parseFloat(e.target.value)*1e-6;$('#acCval').textContent=e.target.value+' µF';updateScope();});
+$('#acResonance').addEventListener('click',()=>{let f0=1/(2*Math.PI*Math.sqrt(scope.L*scope.C));f0=Math.max(10,Math.min(200,Math.round(f0)));$('#acF').value=f0;scope.f=f0;$('#acFval').textContent=f0+' Hz';updateScope();});
+let scopePhi=0,scopeZ=1;
 function updateScope(){
-  const w=2*Math.PI*scope.f;
-  const XL=w*scope.L;
-  const XC= scope.C>0 ? 1/(w*scope.C) : 1e12;
-  const X=XL-XC;
-  const Z=Math.sqrt(scope.R*scope.R+X*X);
-  const phi=Math.atan2(X,scope.R);
+  const w=2*Math.PI*scope.f,XL=w*scope.L,XC=scope.C>0?1/(w*scope.C):1e12,X=XL-XC,Z=Math.sqrt(scope.R*scope.R+X*X),phi=Math.atan2(X,scope.R);
   scopePhi=phi;scopeZ=Z;
-  document.getElementById('acXL').textContent=fmt(XL,1)+' Ω';
-  document.getElementById('acXC').textContent=(XC>1e6?'∞':fmt(XC,1)+' Ω');
-  document.getElementById('acZ').textContent=fmt(Z,1)+' Ω';
-  document.getElementById('acPhi').textContent=fmt(phi*180/Math.PI,1)+'°';
-  document.getElementById('acCos').textContent=fmt(Math.cos(phi),2);
-  let nat = Math.abs(X)<0.5? 'risonanza (resistivo)' : (X>0?'induttivo (i in ritardo)':'capacitivo (i in anticipo)');
-  document.getElementById('acNat').textContent=nat;
+  $('#acXL').textContent=fmt(XL,1)+' Ω';$('#acXC').textContent=(XC>1e6?'∞':fmt(XC,1)+' Ω');$('#acZ').textContent=fmt(Z,1)+' Ω';
+  $('#acPhi').textContent=fmt(phi*180/Math.PI,1)+'°';$('#acCos').textContent=fmt(Math.cos(phi),2);
+  $('#acNat').textContent=Math.abs(X)<0.5?'risonanza (resistivo)':(X>0?'induttivo (i in ritardo)':'capacitivo (i in anticipo)');
 }
 function scopeLoop(){
   if(!scope.running)return;
-  const {ctx,w,h}=fitCanvas(cvScope);
-  ctx.clearRect(0,0,w,h);
-  const vcol=cssVar('--accent'), icol=cssVar('--current'), grid=cssVar('--grid'), muted=cssVar('--muted');
-  // griglia oscilloscopio
-  ctx.strokeStyle=grid;ctx.lineWidth=1;
-  for(let x=0;x<=w;x+=w/10){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
-  for(let y=0;y<=h;y+=h/6){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  const mid=h/2;
-  ctx.strokeStyle=muted;ctx.globalAlpha=.5;ctx.beginPath();ctx.moveTo(0,mid);ctx.lineTo(w,mid);ctx.stroke();ctx.globalAlpha=1;
-
-  scope.t+=0.03;
-  const cycles=2.2;
-  const ampV=h*0.34;
-  const ampI=h*0.34;
-  // onda tensione
-  ctx.strokeStyle=vcol;ctx.lineWidth=2.5;ctx.beginPath();
-  for(let px=0;px<=w;px++){
-    const ph=(px/w)*cycles*2*Math.PI - scope.t*2;
-    const y=mid - ampV*Math.sin(ph);
-    px?ctx.lineTo(px,y):ctx.moveTo(px,y);
-  }
-  ctx.stroke();
-  // onda corrente (sfasata di -phi rispetto a v, ampiezza ridotta da Z)
-  const iScale = 40/scopeZ; // solo per visualizzazione relativa
-  const iAmp = ampI*Math.max(0.25,Math.min(1,iScale));
-  ctx.strokeStyle=icol;ctx.lineWidth=2.5;ctx.beginPath();
-  for(let px=0;px<=w;px++){
-    const ph=(px/w)*cycles*2*Math.PI - scope.t*2 - scopePhi;
-    const y=mid - iAmp*Math.sin(ph);
-    px?ctx.lineTo(px,y):ctx.moveTo(px,y);
-  }
-  ctx.stroke();
-
-  // etichette
-  ctx.font='13px sans-serif';
-  ctx.fillStyle=vcol;ctx.fillText('v(t) tensione',12,20);
-  ctx.fillStyle=icol;ctx.fillText('i(t) corrente',12,38);
-  ctx.fillStyle=muted;ctx.font='12px sans-serif';
-  ctx.fillText('φ = '+fmt(scopePhi*180/Math.PI,0)+'°',w-90,20);
-
+  const {ctx,w,h}=fitCanvas(cvScope);ctx.clearRect(0,0,w,h);
+  const vcol=cssVar('--accent'),icol=cssVar('--current'),grid=cssVar('--grid'),muted=cssVar('--muted');
+  ctx.strokeStyle=grid;ctx.lineWidth=1;for(let x=0;x<=w;x+=w/10){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}for(let y=0;y<=h;y+=h/6){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  const mid=h/2;ctx.strokeStyle=muted;ctx.globalAlpha=.5;ctx.beginPath();ctx.moveTo(0,mid);ctx.lineTo(w,mid);ctx.stroke();ctx.globalAlpha=1;
+  scope.t+=0.03;const cycles=2.2,ampV=h*0.34;
+  ctx.strokeStyle=vcol;ctx.lineWidth=2.5;ctx.beginPath();for(let px=0;px<=w;px++){const ph=(px/w)*cycles*2*Math.PI-scope.t*2;const y=mid-ampV*Math.sin(ph);px?ctx.lineTo(px,y):ctx.moveTo(px,y);}ctx.stroke();
+  const iAmp=h*0.34*Math.max(0.25,Math.min(1,40/scopeZ));
+  ctx.strokeStyle=icol;ctx.lineWidth=2.5;ctx.beginPath();for(let px=0;px<=w;px++){const ph=(px/w)*cycles*2*Math.PI-scope.t*2-scopePhi;const y=mid-iAmp*Math.sin(ph);px?ctx.lineTo(px,y):ctx.moveTo(px,y);}ctx.stroke();
+  ctx.font='13px sans-serif';ctx.fillStyle=vcol;ctx.fillText('v(t) tensione',12,20);ctx.fillStyle=icol;ctx.fillText('i(t) corrente',12,38);
+  ctx.fillStyle=muted;ctx.font='12px sans-serif';ctx.fillText('φ = '+fmt(scopePhi*180/Math.PI,0)+'°',w-90,20);
   requestAnimationFrame(scopeLoop);
 }
 
-/* Ridimensionamento */
-window.addEventListener('resize',()=>{ if(activeSection==='sim' && activeSim==='s-carica') resetCharge(); });
-
-/* Inizializzazioni sim */
-updateWireReadout();
-updateScope();
-setTimeout(()=>{ if(cvCharge.getBoundingClientRect().width) resetCharge(); },60);
-
-/* =========================================================================
-   ESERCIZI GUIDATI
-   ========================================================================= */
-const esercizi=[
-  {lvl:'b1',lvlTxt:'Base',
-   q:'Un filo rettilineo è percorso da una corrente I = 4,0 A. Quanto vale il campo magnetico a 2,0 cm dal filo? (μ₀ = 4π·10⁻⁷ T·m/A)',
-   hints:['Usa la legge di Biot-Savart per un filo: B = μ₀I / (2πr).',
-          'Attenzione alle unità: r = 2,0 cm = 0,020 m.',
-          'B = (4π·10⁻⁷ · 4,0) / (2π · 0,020). Semplifica il 2π/4π = 1/2 ... in realtà μ₀/2π = 2·10⁻⁷.'],
-   ans:4e-5, tol:0.08, unit:'T',
-   sol:'B = μ₀I/(2πr) = (2·10⁻⁷ T·m/A · 4,0 A)/0,020 m = 4,0·10⁻⁵ T = 40 µT. Il campo è debole: per questo attorno ai fili di casa si misurano microtesla.'},
-
-  {lvl:'b1',lvlTxt:'Base',
-   q:'Una carica q = 1,6·10⁻¹⁹ C si muove a v = 2,0·10⁶ m/s perpendicolarmente a un campo B = 0,50 T. Qual è il modulo della forza di Lorentz?',
-   hints:['Con v perpendicolare a B, sin θ = 1, quindi F = qvB.',
-          'Moltiplica i tre valori: F = q·v·B.',
-          'F = 1,6·10⁻¹⁹ · 2,0·10⁶ · 0,50.'],
-   ans:1.6e-13, tol:0.08, unit:'N',
-   sol:'F = qvB = 1,6·10⁻¹⁹ · 2,0·10⁶ · 0,50 = 1,6·10⁻¹³ N. La forza è minuscola in valore assoluto, ma agendo su una particella leggerissima produce accelerazioni enormi.'},
-
-  {lvl:'b2',lvlTxt:'Intermedio',
-   q:'Un protone (m = 1,67·10⁻²⁷ kg, q = 1,6·10⁻¹⁹ C) entra perpendicolarmente in un campo B = 0,20 T con velocità v = 3,0·10⁶ m/s. Qual è il raggio della traiettoria circolare?',
-   hints:['La forza di Lorentz fa da forza centripeta: qvB = mv²/r.',
-          'Isola r: r = mv/(qB).',
-          'r = (1,67·10⁻²⁷ · 3,0·10⁶)/(1,6·10⁻¹⁹ · 0,20).'],
-   ans:0.1566, tol:0.05, unit:'m',
-   sol:'r = mv/(qB) = (1,67·10⁻²⁷·3,0·10⁶)/(1,6·10⁻¹⁹·0,20) ≈ 0,157 m ≈ 16 cm. Nota che T = 2πm/(qB) non dipende da v.'},
-
-  {lvl:'b2',lvlTxt:'Intermedio',
-   q:'Un solenoide lungo 25 cm ha 500 spire ed è percorso da I = 3,0 A. Quanto vale il campo magnetico al suo interno? (μ₀ = 4π·10⁻⁷)',
-   hints:['Campo del solenoide: B = μ₀ n I, con n = N/L.',
-          'n = 500 / 0,25 m = 2000 spire/m.',
-          'B = 4π·10⁻⁷ · 2000 · 3,0.'],
-   ans:7.54e-3, tol:0.06, unit:'T',
-   sol:'n = N/L = 500/0,25 = 2000 m⁻¹. B = μ₀nI = 4π·10⁻⁷·2000·3,0 ≈ 7,5·10⁻³ T = 7,5 mT.'},
-
-  {lvl:'b2',lvlTxt:'Intermedio',
-   q:'Una spira quadrata di lato 10 cm è immersa in un campo B perpendicolare che cresce uniformemente da 0 a 0,40 T in 0,20 s. Qual è il modulo della f.e.m. indotta?',
-   hints:['f.e.m. = |ΔΦ/Δt|, con Φ = B·A (campo perpendicolare, cos θ = 1).',
-          'Area A = (0,10 m)² = 0,010 m². ΔΦ = A·ΔB.',
-          'f.e.m. = A·ΔB/Δt = 0,010 · 0,40 / 0,20.'],
-   ans:0.02, tol:0.06, unit:'V',
-   sol:'ΔΦ = A·ΔB = 0,010 m² · 0,40 T = 4,0·10⁻³ Wb. f.e.m. = ΔΦ/Δt = 4,0·10⁻³/0,20 = 0,020 V = 20 mV.'},
-
-  {lvl:'b3',lvlTxt:'Avanzato',
-   q:'In un circuito RLC serie: R = 30 Ω, L = 50 mH, C = 100 µF, alimentato a f = 50 Hz. Calcola l\'impedenza Z. (usa ω = 2πf ≈ 314 rad/s)',
-   hints:['Calcola le reattanze: X_L = ωL e X_C = 1/(ωC).',
-          'X_L = 314·0,050 ≈ 15,7 Ω;  X_C = 1/(314·100·10⁻⁶) ≈ 31,8 Ω.',
-          'Z = √(R² + (X_L − X_C)²) = √(30² + (15,7 − 31,8)²).'],
-   ans:34.1, tol:0.06, unit:'Ω',
-   sol:'ω = 2π·50 ≈ 314 rad/s. X_L = ωL ≈ 15,7 Ω, X_C = 1/(ωC) ≈ 31,8 Ω. X_L − X_C ≈ −16,1 Ω. Z = √(30² + 16,1²) ≈ √(900+259) ≈ 34,1 Ω. Poiché X_C > X_L il circuito è capacitivo (φ < 0).'},
-
-  {lvl:'b3',lvlTxt:'Avanzato',
-   q:'Un carico assorbe I_eff = 5,0 A a V_eff = 230 V con fattore di potenza cos φ = 0,80. Qual è la potenza attiva (in W)?',
-   hints:['Potenza attiva: P = V_eff · I_eff · cos φ.',
-          'È l\'unica potenza realmente "consumata".',
-          'P = 230 · 5,0 · 0,80.'],
-   ans:920, tol:0.03, unit:'W',
-   sol:'P = V_eff·I_eff·cos φ = 230·5,0·0,80 = 920 W. La potenza apparente sarebbe S = 230·5,0 = 1150 VA; la differenza è potenza reattiva Q = S·sin φ = 1150·0,60 = 690 var.'},
-
-  {lvl:'b3',lvlTxt:'Avanzato',
-   q:'Un trasformatore ideale ha N₁ = 1000 spire al primario (V₁ = 230 V) e N₂ = 50 spire al secondario. Quale tensione V₂ si ottiene?',
-   hints:['Trasformatore ideale: V₂/V₁ = N₂/N₁.',
-          'Qui N₂ < N₁: è un trasformatore che abbassa la tensione.',
-          'V₂ = V₁ · N₂/N₁ = 230 · 50/1000.'],
-   ans:11.5, tol:0.03, unit:'V',
-   sol:'V₂ = V₁·(N₂/N₁) = 230·(50/1000) = 11,5 V. È un trasformatore abbassatore: la corrente al secondario sarà invece maggiore, perché V₁I₁ ≈ V₂I₂.'}
+/* ============ Registro simulazioni: gira solo quella visibile ============ */
+const SIMS=[
+  {cv:cvWire,loop:wireLoop,st:wire},
+  {cv:cvCharge,loop:chargeLoop,st:charge,onStart:resetCharge},
+  {cv:cvMag,loop:magLoop,st:mag},
+  {cv:cvRL,loop:rlLoop,st:rl,onStart:resetRL},
+  {cv:cvScope,loop:scopeLoop,st:scope},
 ];
-const exList=document.getElementById('exList');
-esercizi.forEach((e,i)=>{
-  const div=document.createElement('div');div.className='ex';
-  let hintsHtml='';
-  e.hints.forEach((h,k)=>hintsHtml+=`<div class="hint" style="display:none" data-h="${k}"><b>Aiuto ${k+1}.</b> ${h}</div>`);
-  div.innerHTML=`
-    <div class="ex-head"><span class="lvl ${e.lvl}">${e.lvlTxt}</span><span class="q">${i+1}. ${e.q}</span><span class="chev">▶</span></div>
-    <div class="ex-body">
-      <div class="answer-field">
-        <input type="text" inputmode="decimal" placeholder="risultato" data-ans>
-        <span class="muted small">${e.unit}</span>
-        <button class="btn primary" data-check>Verifica</button>
-        <button class="btn ghost" data-hint>Aiuto</button>
-        <button class="btn ghost" data-showsol>Soluzione</button>
-      </div>
-      <div class="feedback"></div>
-      ${hintsHtml}
-      <div class="solution"><b>Soluzione.</b> ${e.sol}</div>
-    </div>`;
-  exList.appendChild(div);
-  const head=div.querySelector('.ex-head');
-  head.addEventListener('click',()=>div.classList.toggle('open'));
-  const input=div.querySelector('[data-ans]');
-  const fb=div.querySelector('.feedback');
-  let hintShown=0;
-  div.querySelector('[data-check]').addEventListener('click',()=>{
-    const raw=input.value.replace(',', '.').replace(/\s/g,'');
-    const val=parseFloat(raw);
-    if(isNaN(val)){fb.textContent='Inserisci un valore numerico (puoi usare notazione tipo 4e-5).';fb.className='feedback no';return;}
-    const rel=Math.abs(val-e.ans)/Math.abs(e.ans);
-    if(rel<=e.tol){fb.textContent='Corretto. Ottimo lavoro.';fb.className='feedback ok';}
-    else{fb.textContent='Non ancora. Controlla unità e passaggi, oppure apri un aiuto.';fb.className='feedback no';}
+function visible(el){return el&&el.offsetParent!==null;}
+function syncSims(){
+  SIMS.forEach(s=>{
+    const vis=visible(s.cv);
+    if(vis&&!s.st.running){s.st.running=true;if(s.onStart)requestAnimationFrame(()=>{s.onStart();requestAnimationFrame(s.loop);});else requestAnimationFrame(s.loop);}
+    else if(!vis)s.st.running=false;
   });
-  input.addEventListener('keydown',ev=>{if(ev.key==='Enter')div.querySelector('[data-check]').click();});
-  div.querySelector('[data-hint]').addEventListener('click',()=>{
-    const hs=div.querySelectorAll('.hint');
-    if(hintShown<hs.length){hs[hintShown].style.display='block';hintShown++;}
-    if(hintShown>=hs.length){fb.textContent='Hai visto tutti gli aiuti disponibili.';fb.className='feedback';}
-  });
-  div.querySelector('[data-showsol]').addEventListener('click',()=>{
-    div.querySelector('.solution').classList.toggle('show');
-  });
-});
+}
+window.addEventListener('resize',()=>{if(visible(cvCharge))resetCharge();});
+updateWireReadout();updateScope();updateRLreadout();
 
-/* =========================================================================
+/* ===================================================================
+   ESERCIZI GUIDATI (per modulo)
+   =================================================================== */
+const ESERCIZI={
+ campo:[
+  {lvl:'b1',lvlTxt:'Base',q:'Filo con I = 4,0 A. Campo magnetico a 2,0 cm dal filo? (μ₀ = 4π·10⁻⁷)',
+   hints:['Biot-Savart: B = μ₀I/(2πr).','r = 2,0 cm = 0,020 m.','μ₀/2π = 2·10⁻⁷, quindi B = 2·10⁻⁷·4,0/0,020.'],
+   ans:4e-5,tol:0.08,unit:'T',sol:'B = μ₀I/(2πr) = 2·10⁻⁷·4,0/0,020 = 4,0·10⁻⁵ T = 40 µT.'},
+  {lvl:'b1',lvlTxt:'Base',q:'Carica q = 1,6·10⁻¹⁹ C a v = 2,0·10⁶ m/s ⊥ a B = 0,50 T. Forza di Lorentz?',
+   hints:['v ⊥ B → sin θ = 1, quindi F = qvB.','Moltiplica i tre valori.','F = 1,6·10⁻¹⁹·2,0·10⁶·0,50.'],
+   ans:1.6e-13,tol:0.08,unit:'N',sol:'F = qvB = 1,6·10⁻¹⁹·2,0·10⁶·0,50 = 1,6·10⁻¹³ N.'},
+  {lvl:'b2',lvlTxt:'Intermedio',q:'Solenoide lungo 25 cm, 500 spire, I = 3,0 A. Campo interno? (μ₀ = 4π·10⁻⁷)',
+   hints:['B = μ₀ n I con n = N/L.','n = 500/0,25 = 2000 m⁻¹.','B = 4π·10⁻⁷·2000·3,0.'],
+   ans:7.54e-3,tol:0.06,unit:'T',sol:'n = 2000 m⁻¹; B = μ₀nI ≈ 7,5·10⁻³ T = 7,5 mT.'},
+  {lvl:'b3',lvlTxt:'Avanzato',q:'Due fili paralleli a 10 cm, I₁ = I₂ = 5,0 A. Forza per unità di lunghezza? (μ₀/2π = 2·10⁻⁷)',
+   hints:['F/L = μ₀I₁I₂/(2πd).','d = 0,10 m.','F/L = 2·10⁻⁷·5·5/0,10.'],
+   ans:2.5e-5,tol:0.06,unit:'N/m',sol:'F/L = 2·10⁻⁷·25/0,10 = 2,5·10⁻⁵ N/m. Correnti concordi: i fili si attraggono.'}
+ ],
+ cariche:[
+  {lvl:'b1',lvlTxt:'Base',q:'Selettore di velocità con E = 4,0·10⁴ V/m e B = 0,20 T. Velocità selezionata?',
+   hints:['All\'equilibrio qE = qvB.','Quindi v = E/B, indipendente da q e m.','v = 4,0·10⁴/0,20.'],
+   ans:2e5,tol:0.05,unit:'m/s',sol:'v = E/B = 4,0·10⁴/0,20 = 2,0·10⁵ m/s.'},
+  {lvl:'b2',lvlTxt:'Intermedio',q:'Protone (m = 1,67·10⁻²⁷ kg, q = 1,6·10⁻¹⁹ C) a v = 3,0·10⁶ m/s ⊥ a B = 0,20 T. Raggio della traiettoria?',
+   hints:['qvB = mv²/r → r = mv/(qB).','Sostituisci i valori.','r = (1,67·10⁻²⁷·3,0·10⁶)/(1,6·10⁻¹⁹·0,20).'],
+   ans:0.1566,tol:0.05,unit:'m',sol:'r = mv/(qB) ≈ 0,157 m ≈ 16 cm. Il periodo T = 2πm/(qB) non dipende da v.'},
+  {lvl:'b2',lvlTxt:'Intermedio',q:'Elettrone (m = 9,1·10⁻³¹ kg, q = 1,6·10⁻¹⁹ C) in B = 1,0·10⁻³ T. Periodo del moto circolare?',
+   hints:['T = 2πm/(qB).','Non dipende dalla velocità.','T = 2π·9,1·10⁻³¹/(1,6·10⁻¹⁹·1,0·10⁻³).'],
+   ans:3.57e-8,tol:0.06,unit:'s',sol:'T = 2πm/(qB) ≈ 3,6·10⁻⁸ s.'},
+  {lvl:'b3',lvlTxt:'Avanzato',q:'Spettrometro: ione con v = 1,0·10⁵ m/s in B\' = 0,50 T descrive un raggio r = 0,20 m. Rapporto m/q?',
+   hints:['r = mv/(qB\') → m/q = rB\'/v.','Sostituisci.','m/q = 0,20·0,50/1,0·10⁵.'],
+   ans:1e-6,tol:0.05,unit:'kg/C',sol:'m/q = rB\'/v = 0,20·0,50/1,0·10⁵ = 1,0·10⁻⁶ kg/C.'}
+ ],
+ induzione:[
+  {lvl:'b1',lvlTxt:'Base',q:'Spira quadrata di lato 10 cm in un campo ⊥ che cresce da 0 a 0,40 T in 0,20 s. f.e.m. indotta?',
+   hints:['f.e.m. = |ΔΦ/Δt|, Φ = B·A.','A = (0,10)² = 0,010 m².','f.e.m. = A·ΔB/Δt = 0,010·0,40/0,20.'],
+   ans:0.02,tol:0.06,unit:'V',sol:'ΔΦ = A·ΔB = 4,0·10⁻³ Wb; f.e.m. = 4,0·10⁻³/0,20 = 0,020 V.'},
+  {lvl:'b2',lvlTxt:'Intermedio',q:'Bobina di 200 spire: il flusso varia di ΔΦ = 2,0·10⁻³ Wb in 0,040 s. f.e.m.?',
+   hints:['f.e.m. = N·ΔΦ/Δt.','N = 200.','200·2,0·10⁻³/0,040.'],
+   ans:10,tol:0.04,unit:'V',sol:'f.e.m. = N·ΔΦ/Δt = 200·2,0·10⁻³/0,040 = 10 V.'},
+  {lvl:'b2',lvlTxt:'Intermedio',q:'Induttore L = 0,50 H: la corrente varia di 4,0 A in 0,20 s. f.e.m. autoindotta?',
+   hints:['f.e.m. = L·ΔI/Δt.','Sostituisci.','0,50·4,0/0,20.'],
+   ans:10,tol:0.04,unit:'V',sol:'f.e.m. = L·ΔI/Δt = 0,50·4,0/0,20 = 10 V.'},
+  {lvl:'b3',lvlTxt:'Avanzato',q:'Circuito RL con R = 100 Ω e L = 0,50 H. Costante di tempo τ?',
+   hints:['τ = L/R.','Attenzione alle unità (H/Ω = s).','0,50/100.'],
+   ans:5e-3,tol:0.05,unit:'s',sol:'τ = L/R = 0,50/100 = 5,0·10⁻³ s = 5,0 ms.'}
+ ],
+ ac:[
+  {lvl:'b1',lvlTxt:'Base',q:'Tensione di picco V₀ = 311 V. Valore efficace? (÷√2)',
+   hints:['V_eff = V₀/√2.','√2 ≈ 1,414.','311/1,414.'],
+   ans:220,tol:0.03,unit:'V',sol:'V_eff = V₀/√2 = 311/1,414 ≈ 220 V.'},
+  {lvl:'b2',lvlTxt:'Intermedio',q:'Circuito RLC serie con R = 30 Ω, L = 50 mH, C = 100 µF a f = 50 Hz (ω ≈ 314). Impedenza Z?',
+   hints:['X_L = ωL, X_C = 1/(ωC).','X_L ≈ 15,7 Ω; X_C ≈ 31,8 Ω.','Z = √(30² + (15,7−31,8)²).'],
+   ans:34.1,tol:0.06,unit:'Ω',sol:'X_L ≈ 15,7 Ω, X_C ≈ 31,8 Ω; Z = √(900+259) ≈ 34,1 Ω. Capacitivo (X_C>X_L).'},
+  {lvl:'b2',lvlTxt:'Intermedio',q:'Carico: I_eff = 5,0 A a V_eff = 230 V con cos φ = 0,80. Potenza attiva?',
+   hints:['P = V_eff·I_eff·cos φ.','È l\'unica potenza consumata.','230·5,0·0,80.'],
+   ans:920,tol:0.03,unit:'W',sol:'P = 230·5,0·0,80 = 920 W. Apparente S = 1150 VA; reattiva Q = 690 var.'},
+  {lvl:'b3',lvlTxt:'Avanzato',q:'Trasformatore ideale: N₁ = 1000 spire (V₁ = 230 V), N₂ = 50 spire. Tensione V₂?',
+   hints:['V₂/V₁ = N₂/N₁.','N₂ < N₁: abbassa la tensione.','230·50/1000.'],
+   ans:11.5,tol:0.03,unit:'V',sol:'V₂ = V₁·N₂/N₁ = 230·50/1000 = 11,5 V. Trasformatore abbassatore.'}
+ ]
+};
+function mountExercises(container,list){
+  list.forEach((e,i)=>{
+    const div=document.createElement('div');div.className='ex';
+    let hintsHtml='';e.hints.forEach((h,k)=>hintsHtml+=`<div class="hint" style="display:none"><b>Aiuto ${k+1}.</b> ${h}</div>`);
+    div.innerHTML=`<div class="ex-head"><span class="lvl ${e.lvl}">${e.lvlTxt}</span><span class="q">${i+1}. ${e.q}</span><span class="chev">▶</span></div>
+      <div class="ex-body"><div class="answer-field"><input type="text" inputmode="decimal" placeholder="risultato"><span class="muted small">${e.unit}</span>
+      <button class="btn primary" data-check>Verifica</button><button class="btn ghost" data-hint>Aiuto</button><button class="btn ghost" data-sol>Soluzione</button></div>
+      <div class="feedback"></div>${hintsHtml}<div class="solution"><b>Soluzione.</b> ${e.sol}</div></div>`;
+    container.appendChild(div);
+    const head=div.querySelector('.ex-head'),input=div.querySelector('input'),fb=div.querySelector('.feedback');let hintShown=0;
+    head.addEventListener('click',()=>div.classList.toggle('open'));
+    div.querySelector('[data-check]').addEventListener('click',()=>{
+      const val=parseFloat(input.value.replace(',','.').replace(/\s/g,''));
+      if(isNaN(val)){fb.textContent='Inserisci un valore numerico (anche in notazione 4e-5).';fb.className='feedback no';return;}
+      const rel=Math.abs(val-e.ans)/Math.abs(e.ans);
+      if(rel<=e.tol){fb.textContent='Corretto. Ottimo lavoro.';fb.className='feedback ok';}else{fb.textContent='Non ancora. Controlla unità e passaggi, o apri un aiuto.';fb.className='feedback no';}
+    });
+    input.addEventListener('keydown',ev=>{if(ev.key==='Enter')div.querySelector('[data-check]').click();});
+    div.querySelector('[data-hint]').addEventListener('click',()=>{const hs=div.querySelectorAll('.hint');if(hintShown<hs.length){hs[hintShown].style.display='block';hintShown++;}if(hintShown>=hs.length){fb.textContent='Hai visto tutti gli aiuti.';fb.className='feedback';}});
+    div.querySelector('[data-sol]').addEventListener('click',()=>div.querySelector('.solution').classList.toggle('show'));
+  });
+}
+$$('[data-ex]').forEach(c=>{const list=ESERCIZI[c.dataset.ex];if(list)mountExercises(c,list);});
+
+/* ===================================================================
    QUIZ — banca domande
-   ok = indice risposta corretta PRIMA del mescolamento
-   ========================================================================= */
+   =================================================================== */
 const banks={
- campo:{title:'Quiz 1 · Campo magnetico',theory:[
-   {q:'La forza di Lorentz su una carica in moto è nulla quando:',o:['la velocità è parallela al campo B','la velocità è perpendicolare al campo B','la carica è positiva','il campo B è molto intenso'],ok:0,e:'F = qvB sin θ: se v ∥ B allora sin θ = 0 e la forza si annulla.'},
-   {q:'Le linee di campo magnetico attorno a un filo rettilineo percorso da corrente sono:',o:['rette parallele al filo','circonferenze concentriche attorno al filo','ellissi che partono dal filo','semirette uscenti dal filo'],ok:1,e:'Per la legge di Biot-Savart il campo è tangente a circonferenze centrate sul filo.'},
-   {q:'Il campo magnetico di un filo rettilineo, a distanza r, è proporzionale a:',o:['r','r²','1/r','1/r²'],ok:2,e:'B = μ₀I/(2πr): inversamente proporzionale alla distanza.'},
-   {q:'La forza di Lorentz su una carica in moto:',o:['è sempre parallela alla velocità','compie sempre lavoro positivo','è perpendicolare alla velocità e non compie lavoro','dipende solo dal campo elettrico'],ok:2,e:'Essendo F ⊥ v, la forza non compie lavoro: cambia la direzione, non il modulo della velocità.'},
-   {q:'Due fili paralleli percorsi da correnti nello stesso verso:',o:['si attraggono','si respingono','non interagiscono','ruotano l\'uno attorno all\'altro'],ok:0,e:'Correnti concordi si attraggono; discordi si respingono.'},
-   {q:'All\'interno di un solenoide ideale il campo magnetico è:',o:['nullo','massimo ai bordi','circa uniforme e diretto lungo l\'asse','radiale'],ok:2,e:'Il solenoide crea un campo quasi uniforme lungo l\'asse: B = μ₀nI.'},
-   {q:'Il simbolo ⊗ (croce) rappresenta un campo che:',o:['esce dal foglio','entra nel foglio','è nullo','ruota nel piano del foglio'],ok:1,e:'La croce sono le "penne" della freccia che si allontana: campo entrante.'},
-   {q:'La regola della mano destra per v × B: il pollice indica v, le dita si chiudono verso B, allora:',o:['il palmo indica la forza per q negativa','il pollice indica già la forza','il verso di v × B esce dal palmo','il verso di v × B è dato dal pollice dopo aver ruotato v verso B'],ok:3,e:'Con dita da v verso B, il pollice dà v × B. Per q > 0 la forza ha quel verso.'},
-   {q:'Raddoppiando la corrente in un filo, il campo magnetico a distanza fissa:',o:['si dimezza','resta uguale','raddoppia','quadruplica'],ok:2,e:'B ∝ I: se I raddoppia, B raddoppia.'},
-   {q:'L\'unità di misura del campo magnetico nel SI è:',o:['il weber (Wb)','il tesla (T)','l\'henry (H)','il volt (V)'],ok:1,e:'Il campo B si misura in tesla; il weber è il flusso, l\'henry l\'induttanza.'}
+ campo:{title:'Quiz — Campo magnetico',theory:[
+   {q:'La forza di Lorentz su una carica in moto è nulla quando:',o:['la velocità è parallela al campo B','la velocità è perpendicolare al campo B','la carica è positiva','il campo B è molto intenso'],ok:0,e:'F = qvB sin θ: se v ∥ B, sin θ = 0.'},
+   {q:'Le linee di campo attorno a un filo rettilineo sono:',o:['rette parallele al filo','circonferenze concentriche','ellissi uscenti dal filo','semirette radiali'],ok:1,e:'Per Biot-Savart il campo è tangente a circonferenze centrate sul filo.'},
+   {q:'Il campo di un filo, a distanza r, è proporzionale a:',o:['r','r²','1/r','1/r²'],ok:2,e:'B = μ₀I/(2πr): inversamente proporzionale a r.'},
+   {q:'La forza di Lorentz su una carica in moto:',o:['è parallela alla velocità','compie sempre lavoro positivo','è ⊥ alla velocità e non compie lavoro','dipende solo dal campo elettrico'],ok:2,e:'F ⊥ v: cambia la direzione, non il modulo di v.'},
+   {q:'Due fili con correnti nello stesso verso:',o:['si attraggono','si respingono','non interagiscono','ruotano'],ok:0,e:'Correnti concordi si attraggono.'},
+   {q:'Dentro un solenoide ideale il campo è:',o:['nullo','massimo ai bordi','circa uniforme lungo l\'asse','radiale'],ok:2,e:'B = μ₀nI, quasi uniforme lungo l\'asse.'},
+   {q:'Il simbolo ⊗ (croce) indica un campo che:',o:['esce dal foglio','entra nel foglio','è nullo','ruota'],ok:1,e:'La croce = coda della freccia: campo entrante.'},
+   {q:'Mano destra per v × B: dita da v verso B, il verso del prodotto è dato da:',o:['il palmo, per q negativa','il pollice','la direzione di B','la velocità stessa'],ok:1,e:'Il pollice dà v × B; per q>0 la forza ha quel verso.'},
+   {q:'Raddoppiando la corrente, il campo a distanza fissa:',o:['si dimezza','resta uguale','raddoppia','quadruplica'],ok:2,e:'B ∝ I.'},
+   {q:'L\'unità del campo magnetico nel SI è:',o:['il weber','il tesla','l\'henry','il volt'],ok:1,e:'Tesla (T). Weber = flusso, henry = induttanza.'}
  ],numeric:[
-   {q:'Filo con I = 2,0 A: campo a 4,0 cm dal filo? (μ₀/2π = 2·10⁻⁷)',o:['1,0·10⁻⁵ T','2,0·10⁻⁵ T','4,0·10⁻⁵ T','1,0·10⁻⁶ T'],ok:0,e:'B = 2·10⁻⁷·2,0/0,040 = 1,0·10⁻⁵ T.'},
-   {q:'Carica q = 2,0·10⁻¹⁹ C, v = 1,0·10⁶ m/s ⊥ B = 0,30 T. Forza?',o:['6,0·10⁻¹⁴ N','3,0·10⁻¹³ N','6,0·10⁻¹³ N','2,0·10⁻¹³ N'],ok:0,e:'F = qvB = 2,0·10⁻¹⁹·1,0·10⁶·0,30 = 6,0·10⁻¹⁴ N.'},
-   {q:'Spira di raggio 5,0 cm, I = 10 A: campo al centro? (μ₀ = 4π·10⁻⁷)',o:['1,3·10⁻⁴ T','6,3·10⁻⁵ T','1,3·10⁻⁵ T','2,5·10⁻⁴ T'],ok:0,e:'B = μ₀I/(2R) = 4π·10⁻⁷·10/(2·0,05) ≈ 1,26·10⁻⁴ T.'},
-   {q:'Solenoide con n = 1000 spire/m, I = 2,0 A. Campo interno?',o:['2,5·10⁻³ T','1,3·10⁻³ T','8,0·10⁻³ T','5,0·10⁻⁴ T'],ok:0,e:'B = μ₀nI = 4π·10⁻⁷·1000·2,0 ≈ 2,5·10⁻³ T.'},
-   {q:'Due fili a 10 cm, I₁ = I₂ = 5,0 A. Forza per metro? (μ₀/2π = 2·10⁻⁷)',o:['2,5·10⁻⁵ N/m','5,0·10⁻⁵ N/m','1,0·10⁻⁴ N/m','5,0·10⁻⁶ N/m'],ok:0,e:'F/L = 2·10⁻⁷·5·5/0,10 = 2,5·10⁻⁵ N/m.'}
+   {q:'Filo con I = 2,0 A: campo a 4,0 cm? (μ₀/2π = 2·10⁻⁷)',o:['1,0·10⁻⁵ T','2,0·10⁻⁵ T','4,0·10⁻⁵ T','1,0·10⁻⁶ T'],ok:0,e:'B = 2·10⁻⁷·2,0/0,040 = 1,0·10⁻⁵ T.'},
+   {q:'q = 2,0·10⁻¹⁹ C, v = 1,0·10⁶ m/s ⊥ B = 0,30 T. Forza?',o:['6,0·10⁻¹⁴ N','3,0·10⁻¹³ N','6,0·10⁻¹³ N','2,0·10⁻¹³ N'],ok:0,e:'F = qvB = 6,0·10⁻¹⁴ N.'},
+   {q:'Spira R = 5,0 cm, I = 10 A: campo al centro? (μ₀ = 4π·10⁻⁷)',o:['1,3·10⁻⁴ T','6,3·10⁻⁵ T','1,3·10⁻⁵ T','2,5·10⁻⁴ T'],ok:0,e:'B = μ₀I/(2R) ≈ 1,26·10⁻⁴ T.'},
+   {q:'Solenoide n = 1000 spire/m, I = 2,0 A. Campo interno?',o:['2,5·10⁻³ T','1,3·10⁻³ T','8,0·10⁻³ T','5,0·10⁻⁴ T'],ok:0,e:'B = μ₀nI ≈ 2,5·10⁻³ T.'},
+   {q:'Due fili a 10 cm, I₁ = I₂ = 5,0 A. Forza per metro? (μ₀/2π = 2·10⁻⁷)',o:['2,5·10⁻⁵ N/m','5,0·10⁻⁵ N/m','1,0·10⁻⁴ N/m','5,0·10⁻⁶ N/m'],ok:0,e:'F/L = 2·10⁻⁷·25/0,10 = 2,5·10⁻⁵ N/m.'}
  ]},
-
- cariche:{title:'Quiz 2 · Cariche in moto',theory:[
-   {q:'Una carica che entra perpendicolarmente in un campo B uniforme descrive:',o:['una parabola','una retta','una circonferenza','una spirale che si allarga'],ok:2,e:'La forza di Lorentz è centripeta costante in modulo: traiettoria circolare.'},
-   {q:'Il periodo del moto circolare di una carica in un campo B:',o:['aumenta con la velocità','diminuisce con la velocità','non dipende dalla velocità','è proporzionale al raggio'],ok:2,e:'T = 2πm/(qB): indipendente da v. È il principio del ciclotrone.'},
-   {q:'Se la velocità ha una componente parallela a B, la traiettoria diventa:',o:['una circonferenza più grande','un\'elica','una retta','una parabola'],ok:1,e:'La componente parallela non subisce forza: cerchio + avanzamento = elica.'},
-   {q:'In un selettore di velocità, passano indisturbate le cariche con:',o:['v = E/B','v = B/E','v = EB','qualunque velocità'],ok:0,e:'All\'equilibrio qE = qvB, quindi v = E/B, indipendente da q e m.'},
-   {q:'Il raggio della traiettoria r = mv/(qB) aumenta se:',o:['aumenta B','aumenta la velocità v','diminuisce la massa','aumenta la carica'],ok:1,e:'r ∝ mv/(qB): cresce con v e m, diminuisce con q e B.'},
-   {q:'Nello spettrometro di massa, ioni di massa maggiore (stessa v, q, B):',o:['percorrono cerchi di raggio maggiore','percorrono cerchi di raggio minore','non vengono deviati','vanno più veloci'],ok:0,e:'r ∝ m: massa maggiore → raggio maggiore, quindi si separano sul rivelatore.'},
-   {q:'La forza di Lorentz su una carica in moto circolare uniforme:',o:['aumenta il modulo della velocità','compie lavoro','cambia solo la direzione della velocità','è nulla'],ok:2,e:'Essendo sempre ⊥ a v, cambia solo la direzione: modulo di v costante.'},
-   {q:'Nel selettore di velocità la velocità selezionata dipende da:',o:['carica e massa','solo da E e B','solo dalla massa','dalla temperatura'],ok:1,e:'v = E/B: non compaiono né q né m. È un filtro puro di velocità.'},
-   {q:'In un ciclotrone la frequenza di rivoluzione f = qB/(2πm):',o:['dipende dal raggio','dipende dalla velocità','è costante per una data particella e B','è nulla'],ok:2,e:'La frequenza di ciclotrone dipende solo da q, B, m: è costante durante l\'accelerazione.'},
-   {q:'Una carica negativa in un campo B entrante, con v verso destra, curva:',o:['nello stesso verso di una carica positiva','in verso opposto rispetto a una carica positiva','non curva','esce dal campo in linea retta'],ok:1,e:'Il segno di q inverte il verso della forza di Lorentz: cariche opposte curvano in versi opposti.'}
+ cariche:{title:'Quiz — Cariche in moto',theory:[
+   {q:'Una carica ⊥ a un campo B uniforme descrive:',o:['una parabola','una retta','una circonferenza','una spirale'],ok:2,e:'La forza di Lorentz è centripeta costante: cerchio.'},
+   {q:'Il periodo del moto circolare in campo B:',o:['aumenta con v','diminuisce con v','non dipende da v','è ∝ al raggio'],ok:2,e:'T = 2πm/(qB): indipendente da v.'},
+   {q:'Con una componente di v parallela a B la traiettoria è:',o:['un cerchio più grande','un\'elica','una retta','una parabola'],ok:1,e:'La componente parallela non subisce forza: elica.'},
+   {q:'Nel selettore di velocità passano le cariche con:',o:['v = E/B','v = B/E','v = EB','qualunque v'],ok:0,e:'qE = qvB → v = E/B.'},
+   {q:'Il raggio r = mv/(qB) aumenta se:',o:['aumenta B','aumenta v','diminuisce m','aumenta q'],ok:1,e:'r ∝ mv/(qB): cresce con v e m.'},
+   {q:'Nello spettrometro, ioni più massicci (stessi v, q, B):',o:['cerchi di raggio maggiore','cerchi di raggio minore','non deviano','vanno più veloci'],ok:0,e:'r ∝ m.'},
+   {q:'La forza di Lorentz nel moto circolare uniforme:',o:['aumenta v','compie lavoro','cambia solo la direzione di v','è nulla'],ok:2,e:'Sempre ⊥ v: modulo di v costante.'},
+   {q:'La velocità selezionata dal selettore dipende da:',o:['carica e massa','solo da E e B','solo dalla massa','dalla temperatura'],ok:1,e:'v = E/B: né q né m.'},
+   {q:'La frequenza di ciclotrone f = qB/(2πm):',o:['dipende dal raggio','dipende da v','è costante per data particella e B','è nulla'],ok:2,e:'Dipende solo da q, B, m.'},
+   {q:'Una carica negativa in B entrante, v verso destra, curva:',o:['come una positiva','in verso opposto a una positiva','non curva','in linea retta'],ok:1,e:'Il segno di q inverte il verso della forza.'}
  ],numeric:[
-   {q:'Protone (m=1,67·10⁻²⁷ kg, q=1,6·10⁻¹⁹ C) a v=2,0·10⁶ m/s in B=0,40 T. Raggio?',o:['5,2·10⁻² m','2,6·10⁻² m','1,0·10⁻¹ m','5,2·10⁻¹ m'],ok:0,e:'r = mv/(qB) = (1,67·10⁻²⁷·2,0·10⁶)/(1,6·10⁻¹⁹·0,40) ≈ 5,2·10⁻² m.'},
-   {q:'Selettore con E = 4,0·10⁴ V/m e B = 0,20 T. Velocità selezionata?',o:['2,0·10⁵ m/s','8,0·10³ m/s','2,0·10⁴ m/s','5,0·10⁵ m/s'],ok:0,e:'v = E/B = 4,0·10⁴/0,20 = 2,0·10⁵ m/s.'},
-   {q:'Elettrone (m=9,1·10⁻³¹ kg, q=1,6·10⁻¹⁹ C) in B=1,0·10⁻³ T. Periodo?',o:['3,6·10⁻⁸ s','1,1·10⁻⁷ s','3,6·10⁻⁷ s','1,8·10⁻⁸ s'],ok:0,e:'T = 2πm/(qB) = 2π·9,1·10⁻³¹/(1,6·10⁻¹⁹·1,0·10⁻³) ≈ 3,6·10⁻⁸ s.'},
-   {q:'Carica in cerchio r = 0,10 m, v = 3,0·10⁶ m/s. Periodo? (T = 2πr/v)',o:['2,1·10⁻⁷ s','1,0·10⁻⁷ s','3,3·10⁻⁷ s','6,3·10⁻⁷ s'],ok:0,e:'T = 2πr/v = 2π·0,10/3,0·10⁶ ≈ 2,1·10⁻⁷ s.'},
-   {q:'m/q di uno ione: r = 0,20 m, B\' = 0,50 T, v = 1,0·10⁵ m/s. m/q = rB\'/v =',o:['1,0·10⁻⁶ kg/C','2,0·10⁻⁶ kg/C','5,0·10⁻⁷ kg/C','1,0·10⁻⁵ kg/C'],ok:0,e:'m/q = rB\'/v = 0,20·0,50/1,0·10⁵ = 1,0·10⁻⁶ kg/C.'}
+   {q:'Protone (1,67·10⁻²⁷ kg, 1,6·10⁻¹⁹ C) a v = 2,0·10⁶ m/s in B = 0,40 T. Raggio?',o:['5,2·10⁻² m','2,6·10⁻² m','1,0·10⁻¹ m','5,2·10⁻¹ m'],ok:0,e:'r = mv/(qB) ≈ 5,2·10⁻² m.'},
+   {q:'Selettore E = 4,0·10⁴ V/m, B = 0,20 T. Velocità?',o:['2,0·10⁵ m/s','8,0·10³ m/s','2,0·10⁴ m/s','5,0·10⁵ m/s'],ok:0,e:'v = E/B = 2,0·10⁵ m/s.'},
+   {q:'Elettrone (9,1·10⁻³¹ kg, 1,6·10⁻¹⁹ C) in B = 1,0·10⁻³ T. Periodo?',o:['3,6·10⁻⁸ s','1,1·10⁻⁷ s','3,6·10⁻⁷ s','1,8·10⁻⁸ s'],ok:0,e:'T = 2πm/(qB) ≈ 3,6·10⁻⁸ s.'},
+   {q:'Carica in cerchio r = 0,10 m, v = 3,0·10⁶ m/s. Periodo? (T = 2πr/v)',o:['2,1·10⁻⁷ s','1,0·10⁻⁷ s','3,3·10⁻⁷ s','6,3·10⁻⁷ s'],ok:0,e:'T = 2πr/v ≈ 2,1·10⁻⁷ s.'},
+   {q:'m/q di uno ione: r = 0,20 m, B\' = 0,50 T, v = 1,0·10⁵ m/s.',o:['1,0·10⁻⁶ kg/C','2,0·10⁻⁶ kg/C','5,0·10⁻⁷ kg/C','1,0·10⁻⁵ kg/C'],ok:0,e:'m/q = rB\'/v = 1,0·10⁻⁶ kg/C.'}
  ]},
-
- induzione:{title:'Quiz 3 · Induzione',theory:[
-   {q:'Il flusso del campo magnetico Φ = BA cos θ è massimo quando:',o:['B è parallelo alla superficie','B è perpendicolare alla superficie (θ = 0)','θ = 90°','A è nulla'],ok:1,e:'θ è l\'angolo con la normale: Φ è massimo quando B è ⊥ alla superficie (θ = 0, cos θ = 1).'},
-   {q:'La legge di Faraday-Neumann afferma che la f.e.m. indotta è pari a:',o:['il flusso magnetico','la derivata del flusso rispetto al tempo (col segno meno)','il prodotto B·A','l\'induttanza per la corrente'],ok:1,e:'𝓔 = −dΦ/dt: la f.e.m. nasce dalla variazione del flusso.'},
-   {q:'La legge di Lenz (segno meno) esprime:',o:['la conservazione della carica','che la corrente indotta si oppone alla variazione di flusso','che il flusso è sempre positivo','l\'assenza di dissipazione'],ok:1,e:'La corrente indotta crea un campo che contrasta la variazione: conseguenza della conservazione dell\'energia.'},
-   {q:'Avvicinando il polo nord di un magnete a una spira, la corrente indotta:',o:['favorisce l\'avvicinamento','crea un polo nord verso il magnete per respingerlo','non circola','inverte il campo terrestre'],ok:1,e:'Per Lenz la spira "reagisce" opponendosi: presenta un polo nord che respinge il magnete in arrivo.'},
-   {q:'L\'induttanza L di un circuito si misura in:',o:['weber','henry','tesla','farad'],ok:1,e:'L si misura in henry (H). Il farad è la capacità, il weber il flusso.'},
-   {q:'La f.e.m. autoindotta 𝓔 = −L dI/dt si oppone:',o:['alla corrente stessa','alle variazioni di corrente','alla tensione continua','al campo elettrico esterno'],ok:1,e:'L\'induttore è "l\'inerzia elettrica": contrasta le variazioni di corrente, non la corrente in sé.'},
-   {q:'In un circuito RL, la costante di tempo è:',o:['τ = RL','τ = L/R','τ = R/L','τ = LC'],ok:1,e:'τ = L/R: dopo τ la corrente raggiunge il 63% del valore finale.'},
-   {q:'Un flusso magnetico costante nel tempo attraverso una spira:',o:['induce una f.e.m. costante','induce una f.e.m. crescente','non induce alcuna f.e.m.','inverte la corrente'],ok:2,e:'Serve una variazione: se Φ è costante, dΦ/dt = 0 e non c\'è f.e.m. indotta.'},
-   {q:'Per aumentare la f.e.m. indotta in una bobina si può:',o:['diminuire il numero di spire','aumentare il numero di spire N','tenere il flusso costante','aumentare la resistenza'],ok:1,e:'𝓔 = −N dΦ/dt: più spire, maggiore f.e.m.'},
-   {q:'Il flusso magnetico si misura in:',o:['tesla','henry','weber','ampere'],ok:2,e:'Il flusso Φ si misura in weber (Wb = T·m²).'}
+ induzione:{title:'Quiz — Induzione',theory:[
+   {q:'Il flusso Φ = BA cos θ è massimo quando:',o:['B è parallelo alla superficie','B è ⊥ alla superficie (θ=0)','θ = 90°','A è nulla'],ok:1,e:'θ è l\'angolo con la normale: massimo a θ=0.'},
+   {q:'La legge di Faraday-Neumann dice che la f.e.m. è pari a:',o:['il flusso','la derivata del flusso (col segno meno)','B·A','L·I'],ok:1,e:'𝓔 = −dΦ/dt.'},
+   {q:'La legge di Lenz (segno meno) esprime:',o:['la conservazione della carica','che la corrente indotta si oppone alla variazione','che Φ è sempre positivo','l\'assenza di dissipazione'],ok:1,e:'La corrente indotta contrasta la variazione: conservazione dell\'energia.'},
+   {q:'Avvicinando il polo nord a una spira, la corrente indotta:',o:['favorisce l\'avvicinamento','presenta un nord che respinge il magnete','non circola','inverte il campo terrestre'],ok:1,e:'Per Lenz la spira si oppone al magnete in arrivo.'},
+   {q:'L\'induttanza L si misura in:',o:['weber','henry','tesla','farad'],ok:1,e:'Henry (H).'},
+   {q:'La f.e.m. autoindotta 𝓔 = −L dI/dt si oppone:',o:['alla corrente','alle variazioni di corrente','alla tensione continua','al campo esterno'],ok:1,e:'L\'induttore contrasta le variazioni di corrente.'},
+   {q:'In un circuito RL la costante di tempo è:',o:['τ = RL','τ = L/R','τ = R/L','τ = LC'],ok:1,e:'τ = L/R.'},
+   {q:'Un flusso costante nel tempo attraverso una spira:',o:['induce f.e.m. costante','induce f.e.m. crescente','non induce f.e.m.','inverte la corrente'],ok:2,e:'Serve una variazione: dΦ/dt = 0 → niente f.e.m.'},
+   {q:'Per aumentare la f.e.m. indotta in una bobina si può:',o:['ridurre le spire','aumentare il numero di spire N','tenere Φ costante','aumentare R'],ok:1,e:'𝓔 = −N dΦ/dt.'},
+   {q:'Il flusso magnetico si misura in:',o:['tesla','henry','weber','ampere'],ok:2,e:'Weber (Wb = T·m²).'}
  ],numeric:[
-   {q:'Spira di area 0,020 m² in campo ⊥ che varia da 0,10 a 0,50 T in 0,10 s. f.e.m.?',o:['0,080 V','0,040 V','0,80 V','8,0 V'],ok:0,e:'𝓔 = A·ΔB/Δt = 0,020·(0,40)/0,10 = 0,080 V.'},
-   {q:'Bobina di 200 spire, ΔΦ = 2,0·10⁻³ Wb in 0,040 s. f.e.m.?',o:['10 V','5,0 V','20 V','2,0 V'],ok:0,e:'𝓔 = N·ΔΦ/Δt = 200·2,0·10⁻³/0,040 = 10 V.'},
-   {q:'Induttore L = 0,50 H: la corrente varia di 4,0 A in 0,20 s. f.e.m. autoindotta?',o:['10 V','5,0 V','2,0 V','20 V'],ok:0,e:'𝓔 = L·ΔI/Δt = 0,50·4,0/0,20 = 10 V.'},
-   {q:'Circuito RL: R = 100 Ω, L = 0,50 H. Costante di tempo τ?',o:['5,0·10⁻³ s','2,0·10⁻² s','50 s','5,0·10⁻² s'],ok:0,e:'τ = L/R = 0,50/100 = 5,0·10⁻³ s = 5,0 ms.'},
-   {q:'Alternatore: N=100, B=0,20 T, A=0,010 m², ω=314 rad/s. f.e.m. massima?',o:['63 V','6,3 V','0,63 V','314 V'],ok:0,e:'𝓔₀ = NBAω = 100·0,20·0,010·314 ≈ 63 V.'}
+   {q:'Spira A = 0,020 m² in campo ⊥ da 0,10 a 0,50 T in 0,10 s. f.e.m.?',o:['0,080 V','0,040 V','0,80 V','8,0 V'],ok:0,e:'𝓔 = A·ΔB/Δt = 0,020·0,40/0,10 = 0,080 V.'},
+   {q:'Bobina 200 spire, ΔΦ = 2,0·10⁻³ Wb in 0,040 s. f.e.m.?',o:['10 V','5,0 V','20 V','2,0 V'],ok:0,e:'𝓔 = N·ΔΦ/Δt = 10 V.'},
+   {q:'Induttore L = 0,50 H: ΔI = 4,0 A in 0,20 s. f.e.m. autoindotta?',o:['10 V','5,0 V','2,0 V','20 V'],ok:0,e:'𝓔 = L·ΔI/Δt = 10 V.'},
+   {q:'RL: R = 100 Ω, L = 0,50 H. Costante di tempo τ?',o:['5,0·10⁻³ s','2,0·10⁻² s','50 s','5,0·10⁻² s'],ok:0,e:'τ = L/R = 5,0 ms.'},
+   {q:'Alternatore N = 100, B = 0,20 T, A = 0,010 m², ω = 314 rad/s. f.e.m. massima?',o:['63 V','6,3 V','0,63 V','314 V'],ok:0,e:'𝓔₀ = NBAω ≈ 63 V.'}
  ]},
-
- ac:{title:'Quiz 4 · Corrente alternata',theory:[
-   {q:'Il valore efficace di una tensione alternata sinusoidale è:',o:['V₀','V₀/√2','V₀·√2','V₀/2'],ok:1,e:'V_eff = V₀/√2. I "230 V" di rete sono efficaci: il picco è ≈ 325 V.'},
-   {q:'In un resistore puro in AC, corrente e tensione sono:',o:['sfasate di 90°','in fase','sfasate di 180°','sfasate di 45°'],ok:1,e:'Sul resistore i e v sono in fase (φ = 0).'},
-   {q:'La reattanza induttiva X_L = ωL, al crescere della frequenza:',o:['diminuisce','resta costante','aumenta','si annulla'],ok:2,e:'X_L = ωL cresce con ω: ad alta frequenza l\'induttore "blocca" la corrente.'},
-   {q:'La reattanza capacitiva X_C = 1/(ωC), al crescere della frequenza:',o:['aumenta','diminuisce','resta costante','diventa infinita'],ok:1,e:'X_C = 1/(ωC) diminuisce con ω: ad alta frequenza il condensatore "lascia passare".'},
-   {q:'In un induttore la corrente rispetto alla tensione è:',o:['in anticipo di 90°','in ritardo di 90°','in fase','in ritardo di 45°'],ok:1,e:'Nell\'induttore (ELI) la corrente è in ritardo di 90°.'},
-   {q:'In un condensatore la corrente rispetto alla tensione è:',o:['in anticipo di 90°','in ritardo di 90°','in fase','opposta'],ok:0,e:'Nel condensatore (ICE) la corrente è in anticipo di 90°.'},
-   {q:'L\'impedenza di un RLC serie è Z = √(R² + (X_L − X_C)²). Se X_L = X_C:',o:['Z è massima','Z = R (minima)','Z = 0','Z è infinita'],ok:1,e:'Alla risonanza X_L = X_C: Z si riduce a R, la corrente è massima.'},
-   {q:'Il fattore di potenza è:',o:['sin φ','cos φ','tan φ','1/φ'],ok:1,e:'cos φ è il fattore di potenza: P = V_eff·I_eff·cos φ.'},
-   {q:'La potenza reattiva (var) è associata a:',o:['calore dissipato nei resistori','energia scambiata avanti-indietro con L e C','la corrente continua','le perdite ohmiche'],ok:1,e:'La potenza reattiva è scambiata con induttori e condensatori senza essere consumata.'},
-   {q:'In un trasformatore ideale, il rapporto V₂/V₁ è uguale a:',o:['N₁/N₂','N₂/N₁','(N₂/N₁)²','I₂/I₁'],ok:1,e:'V₂/V₁ = N₂/N₁. La corrente varia in modo inverso: V₁I₁ ≈ V₂I₂.'}
+ ac:{title:'Quiz — Corrente alternata',theory:[
+   {q:'Il valore efficace di una tensione sinusoidale è:',o:['V₀','V₀/√2','V₀·√2','V₀/2'],ok:1,e:'V_eff = V₀/√2.'},
+   {q:'In un resistore puro in AC, i e v sono:',o:['sfasati di 90°','in fase','sfasati di 180°','sfasati di 45°'],ok:1,e:'φ = 0.'},
+   {q:'X_L = ωL, al crescere della frequenza:',o:['diminuisce','resta costante','aumenta','si annulla'],ok:2,e:'Cresce con ω: l\'induttore blocca.'},
+   {q:'X_C = 1/(ωC), al crescere della frequenza:',o:['aumenta','diminuisce','resta costante','diventa infinita'],ok:1,e:'Diminuisce con ω: il condensatore lascia passare.'},
+   {q:'In un induttore la corrente rispetto alla tensione è:',o:['in anticipo di 90°','in ritardo di 90°','in fase','in ritardo di 45°'],ok:1,e:'ELI: corrente in ritardo.'},
+   {q:'In un condensatore la corrente è:',o:['in anticipo di 90°','in ritardo di 90°','in fase','opposta'],ok:0,e:'ICE: corrente in anticipo.'},
+   {q:'Se X_L = X_C nell\'RLC serie:',o:['Z è massima','Z = R (minima)','Z = 0','Z è infinita'],ok:1,e:'Risonanza: Z = R, corrente massima.'},
+   {q:'Il fattore di potenza è:',o:['sin φ','cos φ','tan φ','1/φ'],ok:1,e:'cos φ: P = V·I·cos φ.'},
+   {q:'La potenza reattiva è associata a:',o:['calore nei resistori','energia scambiata con L e C','la continua','le perdite ohmiche'],ok:1,e:'Scambiata con L e C, non consumata.'},
+   {q:'In un trasformatore ideale V₂/V₁ =',o:['N₁/N₂','N₂/N₁','(N₂/N₁)²','I₂/I₁'],ok:1,e:'V₂/V₁ = N₂/N₁.'}
  ],numeric:[
-   {q:'Tensione di picco V₀ = 311 V. Valore efficace?',o:['220 V','311 V','440 V','156 V'],ok:0,e:'V_eff = V₀/√2 = 311/1,414 ≈ 220 V.'},
-   {q:'Induttore L = 0,10 H a f = 50 Hz (ω ≈ 314). Reattanza X_L?',o:['31 Ω','16 Ω','63 Ω','3,1 Ω'],ok:0,e:'X_L = ωL = 314·0,10 ≈ 31 Ω.'},
-   {q:'Condensatore C = 100 µF a f = 50 Hz (ω ≈ 314). Reattanza X_C?',o:['32 Ω','16 Ω','64 Ω','3,2 Ω'],ok:0,e:'X_C = 1/(ωC) = 1/(314·100·10⁻⁶) ≈ 32 Ω.'},
-   {q:'RLC serie: R = 40 Ω, X_L = 60 Ω, X_C = 30 Ω. Impedenza Z?',o:['50 Ω','70 Ω','130 Ω','10 Ω'],ok:0,e:'Z = √(40² + (60−30)²) = √(1600+900) = √2500 = 50 Ω.'},
-   {q:'Carico: V_eff = 230 V, I_eff = 4,0 A, cos φ = 0,50. Potenza attiva?',o:['460 W','920 W','230 W','1150 W'],ok:0,e:'P = V·I·cos φ = 230·4,0·0,50 = 460 W.'}
+   {q:'V₀ = 311 V. Valore efficace?',o:['220 V','311 V','440 V','156 V'],ok:0,e:'V_eff = 311/√2 ≈ 220 V.'},
+   {q:'L = 0,10 H a f = 50 Hz (ω ≈ 314). X_L?',o:['31 Ω','16 Ω','63 Ω','3,1 Ω'],ok:0,e:'X_L = ωL ≈ 31 Ω.'},
+   {q:'C = 100 µF a f = 50 Hz (ω ≈ 314). X_C?',o:['32 Ω','16 Ω','64 Ω','3,2 Ω'],ok:0,e:'X_C = 1/(ωC) ≈ 32 Ω.'},
+   {q:'RLC serie: R = 40 Ω, X_L = 60 Ω, X_C = 30 Ω. Z?',o:['50 Ω','70 Ω','130 Ω','10 Ω'],ok:0,e:'Z = √(40²+30²) = 50 Ω.'},
+   {q:'V_eff = 230 V, I_eff = 4,0 A, cos φ = 0,50. Potenza attiva?',o:['460 W','920 W','230 W','1150 W'],ok:0,e:'P = 230·4,0·0,50 = 460 W.'}
  ]}
 };
-
-/* Quiz finale: selezione mista dalle quattro sezioni */
 function buildFinal(){
-  const th=[], nu=[];
-  ['campo','cariche','induzione','ac'].forEach(k=>{
-    // prende alcune domande per sezione
-    th.push(...banks[k].theory.slice(0,3).map(x=>({...x,src:banks[k].title})));
-    nu.push(...banks[k].numeric.slice(0,2).map(x=>({...x,src:banks[k].title})));
-  });
-  // 12 teoria -> ne teniamo 10, 8 numeriche -> teniamo 5
+  const th=[],nu=[];
+  ['campo','cariche','induzione','ac'].forEach(k=>{th.push(...banks[k].theory.slice(0,3).map(x=>({...x,src:banks[k].title})));nu.push(...banks[k].numeric.slice(0,2).map(x=>({...x,src:banks[k].title})));});
   return {theory:th.slice(0,10),numeric:nu.slice(0,5)};
 }
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function prep(q,type){const order=shuffle(q.o.map((t,i)=>i));return {q:q.q,opts:order.map(i=>q.o[i]),correct:order.indexOf(q.ok),e:q.e,type,src:q.src};}
 
-/* Costruzione picker */
-const quizzes=[
-  {id:'campo',label:'Quiz 1',sub:'Campo magnetico',mode:'immediate'},
-  {id:'cariche',label:'Quiz 2',sub:'Cariche in moto',mode:'immediate'},
-  {id:'induzione',label:'Quiz 3',sub:'Induzione',mode:'immediate'},
-  {id:'ac',label:'Quiz 4',sub:'Corrente alternata',mode:'immediate'},
-  {id:'final',label:'Quiz finale',sub:'Riepilogo · punteggio alla fine',mode:'final'}
-];
-const picker=document.getElementById('quizPicker');
-quizzes.forEach(qz=>{
-  const b=document.createElement('button');
-  if(qz.mode==='final')b.classList.add('final');
-  b.innerHTML=`${qz.label}<small>${qz.sub}</small>`;
-  b.addEventListener('click',()=>{picker.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');loadQuiz(qz);});
-  picker.appendChild(b);
+/* ---- Fabbrica di quiz: una domanda alla volta, con navigazione ---- */
+function createQuiz(container,cfg){
+  let st;
+  function build(){
+    const questions=[...cfg.theory.map(q=>prep(q,'Teoria')),...cfg.numeric.map(q=>prep(q,'Problema'))];
+    st={questions,answered:Array(questions.length).fill(null),idx:0,concluded:false};
+    renderShell();renderQuestion();
+  }
+  function renderShell(){
+    const nT=st.questions.filter(q=>q.type==='Teoria').length,nP=st.questions.filter(q=>q.type==='Problema').length;
+    container.innerHTML=`<div class="card tight small muted">${cfg.title} · ${st.questions.length} domande (${nT} teoria + ${nP} problemi). ${cfg.mode==='final'?'Punteggio solo alla fine; puoi tornare indietro.':'Una domanda alla volta, riscontro immediato; puoi tornare indietro.'}</div>
+      <div class="q-stage"></div>
+      <div class="quiz-foot"><button class="btn ghost q-prev">← Indietro</button>
+        <div style="flex:1;min-width:120px"><div class="small muted q-counter" style="text-align:center;margin-bottom:.25rem"></div><div class="progress"><i class="q-prog"></i></div></div>
+        <button class="btn primary q-next">Avanti →</button></div>
+      <div class="result-panel card q-result"></div>`;
+    container.querySelector('.q-prev').addEventListener('click',()=>{if(st.idx>0){st.idx--;renderQuestion();}});
+    container.querySelector('.q-next').addEventListener('click',()=>{if(st.idx<st.questions.length-1){st.idx++;renderQuestion();}else conclude();});
+  }
+  function renderQuestion(){
+    const q=st.questions[st.idx],a=st.answered[st.idx];
+    const revealed=st.concluded||(cfg.mode==='immediate'&&a!==null);
+    const stage=container.querySelector('.q-stage');
+    let html=`<div class="qcard"><div class="qnum">Domanda ${st.idx+1} di ${st.questions.length} <span class="tagn">${q.type}</span>${q.src?` <span class="muted small">· ${q.src.replace(/Quiz — /,'')}</span>`:''}</div><div class="qtext">${q.q}</div><div class="opts">`;
+    q.opts.forEach((o,oi)=>{let cls='opt';if(revealed){cls+=' disabled';if(oi===q.correct)cls+=' correct';if(oi===a&&a!==q.correct)cls+=' wrong';}else if(a===oi)cls+=' sel';
+      html+=`<div class="${cls}" data-oi="${oi}"><span class="mk">${String.fromCharCode(65+oi)}</span><span>${o}</span></div>`;});
+    html+=`</div>`;
+    if(revealed){if(a===q.correct)html+=`<div class="explain show ok"><b>Corretto.</b> ${q.e}</div>`;else html+=`<div class="explain show no"><b>${a===null?'Senza risposta.':'Non corretto.'}</b> Risposta giusta: ${String.fromCharCode(65+q.correct)}. ${q.e}</div>`;}
+    html+=`</div>`;stage.innerHTML=html;
+    if(!revealed)stage.querySelectorAll('.opt').forEach(opt=>opt.addEventListener('click',()=>onAnswer(parseInt(opt.dataset.oi))));
+    updateNav();typeset(stage);
+  }
+  function onAnswer(oi){
+    if(cfg.mode==='immediate'){if(st.answered[st.idx]!==null)return;st.answered[st.idx]=oi;renderQuestion();}
+    else{if(st.concluded)return;st.answered[st.idx]=oi;container.querySelectorAll('.q-stage .opt').forEach((o,i)=>o.classList.toggle('sel',i===oi));updateNav();}
+  }
+  function updateNav(){
+    const last=st.idx===st.questions.length-1;
+    const prev=container.querySelector('.q-prev'),next=container.querySelector('.q-next'),counter=container.querySelector('.q-counter'),prog=container.querySelector('.q-prog');
+    prev.disabled=st.idx===0;
+    const done=st.answered.filter(a=>a!==null).length;
+    prog.style.width=(done/st.questions.length*100)+'%';
+    counter.textContent='Risposte date: '+done+' / '+st.questions.length;
+    if(last&&!st.concluded){next.textContent=cfg.mode==='final'?'Concludi e mostra punteggio':'Concludi e vedi punteggio';next.className='btn bfield q-next';}
+    else if(last){next.textContent='Rivedi il punteggio';next.className='btn primary q-next';}
+    else{next.textContent='Avanti →';next.className='btn primary q-next';}
+  }
+  function conclude(){
+    if(!st.concluded){
+      const un=st.answered.filter(a=>a===null).length;
+      if(un>0&&!confirm('Ci sono '+un+' domande senza risposta. Concludere comunque?'))return;
+      st.concluded=true;renderQuestion();
+    }
+    const correct=st.answered.reduce((s,a,i)=>s+(a===st.questions[i].correct?1:0),0);
+    showResult(correct,st.questions.length);
+  }
+  function showResult(correct,tot){
+    const panel=container.querySelector('.q-result'),pct=Math.round(correct/tot*100);
+    const good=cssVar('--good'),bad=cssVar('--bad'),bf=cssVar('--bfield'),grid=cssVar('--grid'),muted=cssVar('--muted');
+    const col=pct>=80?good:(pct>=60?bf:bad),circ=2*Math.PI*54;
+    const msg=pct>=80?'Ottimo controllo dell\'argomento.':(pct>=60?'Buona base: rivedi le domande sbagliate.':'Riprendi la teoria con calma e riprova: è normale servano più passaggi.');
+    panel.classList.add('show');
+    panel.innerHTML=`<svg class="result-ring" viewBox="0 0 130 130"><circle cx="65" cy="65" r="54" fill="none" stroke="${grid}" stroke-width="12"/><circle cx="65" cy="65" r="54" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-correct/tot)}" transform="rotate(-90 65 65)"/><text x="65" y="60" text-anchor="middle" font-size="26" font-weight="700" fill="${col}">${pct}%</text><text x="65" y="82" text-anchor="middle" font-size="13" fill="${muted}">${correct}/${tot}</text></svg>
+      <h3>Punteggio: ${correct} su ${tot}</h3><p class="muted">${msg}</p>
+      <div class="btn-row" style="justify-content:center"><button class="btn q-review">Rivedi le domande</button><button class="btn primary q-retry">Riprova questo quiz</button></div>`;
+    panel.querySelector('.q-review').addEventListener('click',()=>{st.idx=0;renderQuestion();container.querySelector('.q-stage').scrollIntoView({behavior:'smooth',block:'start'});});
+    panel.querySelector('.q-retry').addEventListener('click',build);
+    panel.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  build();
+}
+$$('[data-quiz]').forEach(c=>{
+  const id=c.dataset.quiz;
+  if(id==='final'){const f=buildFinal();createQuiz(c,{mode:'final',title:'Quiz finale di riepilogo',theory:f.theory,numeric:f.numeric});}
+  else{const b=banks[id];createQuiz(c,{mode:'immediate',title:b.title,theory:b.theory,numeric:b.numeric});}
 });
 
-/* Utility: mescola array (Fisher-Yates) */
-function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-/* Prepara una domanda: mescola le opzioni e ricalcola l'indice corretto */
-function prepQuestion(q,type){
-  const idx=q.o.map((t,i)=>i);
-  const order=shuffle(idx);
-  const opts=order.map(i=>q.o[i]);
-  const correct=order.indexOf(q.ok);
-  return {q:q.q,opts,correct,e:q.e,type,src:q.src};
-}
-
-const quizArea=document.getElementById('quizArea');
-let currentQuiz=null;
-
-function loadQuiz(qz){
-  let theory, numeric, title;
-  if(qz.mode==='final'){const f=buildFinal();theory=f.theory;numeric=f.numeric;title='Quiz finale di riepilogo';}
-  else{theory=banks[qz.id].theory;numeric=banks[qz.id].numeric;title=banks[qz.id].title;}
-  const questions=[
-    ...theory.map(q=>prepQuestion(q,'Teoria')),
-    ...numeric.map(q=>prepQuestion(q,'Problema'))
-  ];
-  currentQuiz={mode:qz.mode,questions,answered:new Array(questions.length).fill(null),title,idx:0,concluded:false};
-  renderQuiz();
-}
-
-function renderQuiz(){
-  const {questions,mode,title}=currentQuiz;
-  let html=`<div class="card tight"><b>${title}</b> · ${questions.length} domande `
-    +`(${questions.filter(q=>q.type==='Teoria').length} teoria + ${questions.filter(q=>q.type==='Problema').length} problemi). `
-    +(mode==='final'?'<span class="muted small">Una domanda alla volta; il punteggio compare solo alla fine. Puoi tornare indietro per rivedere.</span>':'<span class="muted small">Una domanda alla volta, con riscontro immediato. Puoi tornare indietro per rileggere.</span>')
-    +`</div>`;
-  html+=`<div id="qStage"></div>`;
-  html+=`<div class="quiz-foot">
-      <button class="btn ghost" id="qPrev">← Indietro</button>
-      <div style="flex:1;min-width:120px">
-        <div class="small muted" id="qCounter" style="text-align:center;margin-bottom:.25rem"></div>
-        <div class="progress"><i id="qProg"></i></div>
-      </div>
-      <button class="btn primary" id="qNext">Avanti →</button>
-    </div>`;
-  html+=`<div class="result-panel card" id="resultPanel"></div>`;
-  quizArea.innerHTML=html;
-
-  document.getElementById('qPrev').addEventListener('click',()=>{
-    if(currentQuiz.idx>0){currentQuiz.idx--;renderQuestion();}
-  });
-  document.getElementById('qNext').addEventListener('click',()=>{
-    if(currentQuiz.idx < currentQuiz.questions.length-1){currentQuiz.idx++;renderQuestion();}
-    else concludeQuiz();
-  });
-  renderQuestion();
-  quizArea.scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-/* Mostra la singola domanda corrente */
-function renderQuestion(){
-  const {questions,mode,idx,answered,concluded}=currentQuiz;
-  const q=questions[idx];
-  const a=answered[idx];
-  // rivelata (correzione + spiegazione) se: quiz concluso, oppure in modalità immediata già risposta
-  const revealed = concluded || (mode==='immediate' && a!==null);
-  const stage=document.getElementById('qStage');
-  let html=`<div class="qcard" data-qi="${idx}">
-      <div class="qnum">Domanda ${idx+1} di ${questions.length} <span class="tagn">${q.type}</span>${q.src?` <span class="muted small">· ${q.src.replace(/Quiz \d+ · /,'')}</span>`:''}</div>
-      <div class="qtext">${q.q}</div>
-      <div class="opts">`;
-  q.opts.forEach((o,oi)=>{
-    let cls='opt';
-    if(revealed){
-      cls+=' disabled';
-      if(oi===q.correct)cls+=' correct';
-      if(oi===a && a!==q.correct)cls+=' wrong';
-    }else if(a===oi){
-      cls+=' sel';
-    }
-    html+=`<div class="${cls}" data-oi="${oi}"><span class="mk">${String.fromCharCode(65+oi)}</span><span>${o}</span></div>`;
-  });
-  html+=`</div>`;
-  // spiegazione
-  if(revealed){
-    if(a===q.correct)html+=`<div class="explain show ok"><b>Corretto.</b> ${q.e}</div>`;
-    else html+=`<div class="explain show no"><b>${a===null?'Senza risposta.':'Non corretto.'}</b> Risposta giusta: ${String.fromCharCode(65+q.correct)}. ${q.e}</div>`;
-  }else{
-    html+=`<div class="explain"></div>`;
-  }
-  html+=`</div>`;
-  stage.innerHTML=html;
-
-  // click sulle opzioni (solo se non ancora rivelata)
-  if(!revealed){
-    stage.querySelectorAll('.opt').forEach(opt=>{
-      opt.addEventListener('click',()=>onAnswer(idx,parseInt(opt.dataset.oi)));
-    });
-  }
-  updateNav();
-  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([stage]).catch(()=>{});
-}
-
-function onAnswer(qi,oi){
-  const q=currentQuiz.questions[qi];
-  if(currentQuiz.mode==='immediate'){
-    if(currentQuiz.answered[qi]!==null)return; // già risposto: bloccato
-    currentQuiz.answered[qi]=oi;
-    renderQuestion(); // ridisegna mostrando il riscontro immediato
-  }else{
-    // finale: sola selezione, cambiabile finché non si conclude
-    if(currentQuiz.concluded)return;
-    currentQuiz.answered[qi]=oi;
-    const stage=document.getElementById('qStage');
-    stage.querySelectorAll('.opt').forEach((o,i)=>o.classList.toggle('sel',i===oi));
-    updateNav();
-  }
-}
-
-function updateNav(){
-  const {questions,idx,answered,mode,concluded}=currentQuiz;
-  const last=idx===questions.length-1;
-  const prev=document.getElementById('qPrev');
-  const next=document.getElementById('qNext');
-  const counter=document.getElementById('qCounter');
-  const prog=document.getElementById('qProg');
-  prev.disabled = idx===0;
-  const done=answered.filter(a=>a!==null).length;
-  if(prog)prog.style.width=(done/questions.length*100)+'%';
-  if(counter)counter.textContent='Risposte date: '+done+' / '+questions.length;
-  if(last){
-    if(mode==='final' && !concluded){next.textContent='Concludi e mostra punteggio';next.className='btn bfield';}
-    else if(mode==='immediate' && !concluded){next.textContent='Concludi e vedi punteggio';next.className='btn bfield';}
-    else {next.textContent='Rivedi il punteggio';next.className='btn primary';}
-  }else{
-    next.textContent='Avanti →';next.className='btn primary';
-  }
-}
-
-function concludeQuiz(){
-  const {questions,answered,mode}=currentQuiz;
-  if(!currentQuiz.concluded){
-    const unanswered=answered.filter(a=>a===null).length;
-    if(unanswered>0 && !confirm('Ci sono '+unanswered+' domande senza risposta. Vuoi concludere comunque?'))return;
-    currentQuiz.concluded=true;
-    // nel finale ora si rivelano le correzioni navigando; ridisegna la domanda corrente
-    renderQuestion();
-  }
-  const correct=answered.reduce((s,a,i)=>s+(a===questions[i].correct?1:0),0);
-  showResult(correct,questions.length);
-}
-
-function showResult(correct,tot){
-  const panel=document.getElementById('resultPanel');
-  if(!panel)return;
-  const pct=Math.round(correct/tot*100);
-  const good=cssVar('--good'),bad=cssVar('--bad'),bf=cssVar('--bfield'),grid=cssVar('--grid');
-  const col=pct>=80?good:(pct>=60?bf:bad);
-  let msg = pct>=80?'Ottimo controllo dell\'argomento.':(pct>=60?'Buona base: rivedi le domande sbagliate.':'Riprendi la teoria con calma e riprova: è normale servano più passaggi.');
-  const circ=2*Math.PI*54;
-  panel.classList.add('show');
-  panel.innerHTML=`
-    <svg class="result-ring" viewBox="0 0 130 130">
-      <circle cx="65" cy="65" r="54" fill="none" stroke="${grid}" stroke-width="12"/>
-      <circle cx="65" cy="65" r="54" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round"
-        stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-correct/tot)}" transform="rotate(-90 65 65)"/>
-      <text x="65" y="60" text-anchor="middle" font-size="26" font-weight="700" fill="${col}">${pct}%</text>
-      <text x="65" y="82" text-anchor="middle" font-size="13" fill="${cssVar('--muted')}">${correct}/${tot}</text>
-    </svg>
-    <h3>Punteggio: ${correct} su ${tot}</h3>
-    <p class="muted">${msg}</p>
-    <div class="btn-row" style="justify-content:center">
-      <button class="btn" id="qReview">Rivedi le domande</button>
-      <button class="btn primary" id="qRetry">Riprova questo quiz</button>
-    </div>`;
-  document.getElementById('qReview').addEventListener('click',()=>{
-    currentQuiz.idx=0;renderQuestion();
-    document.getElementById('qStage').scrollIntoView({behavior:'smooth',block:'start'});
-  });
-  document.getElementById('qRetry').addEventListener('click',()=>{
-    const active=picker.querySelector('button.active');
-    const qz=quizzes[[...picker.children].indexOf(active)];
-    loadQuiz(qz);
-  });
-  panel.scrollIntoView({behavior:'smooth',block:'center'});
-}
-
-/* Carica il primo quiz all'avvio */
-picker.children[0].classList.add('active');
-loadQuiz(quizzes[0]);
-
-/* Re-typeset MathJax sulla teoria quando pronto */
-window.addEventListener('load',()=>{if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise().catch(()=>{});});
+/* ============ Avvio ============ */
+// apri il modulo indicato nell'hash, se valido
+(function(){const h=location.hash.replace('#','');if(h&&MODULES.some(m=>m.key===h))goTo(h,true);})();
+requestAnimationFrame(syncSims);
+window.addEventListener('load',()=>{typeset();syncSims();});
 </script>
 </body>
 </html>
