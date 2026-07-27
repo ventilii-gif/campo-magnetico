@@ -238,6 +238,22 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
 .result-panel{display:none;text-align:center;padding:1.4rem}
 .result-panel.show{display:block;animation:fade .3s ease}
 .result-ring{width:130px;height:130px;margin:.5rem auto}
+/* ---------- RISOLUTORE ---------- */
+.solver-pick{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.2rem 0 .6rem}
+.solver-pick select{flex:1;min-width:180px;max-width:100%;padding:.5rem .6rem;border:1px solid var(--border-strong);border-radius:9px;background:var(--surface);color:var(--ink);font-size:.92rem;font-weight:600}
+.unk-seg{display:flex;flex-wrap:wrap;gap:.35rem;margin:.3rem 0 .8rem}
+.unk-seg button{border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:8px;padding:.35rem .65rem;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s}
+.unk-seg button.active{background:var(--bfield);border-color:var(--bfield);color:#fff}
+.var-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.4rem 0;padding:.35rem .4rem;border-radius:9px}
+.var-row .vlab{flex:1 1 150px;font-size:.9rem}
+.var-row .vlab b{color:var(--accent)}
+.var-row input{width:130px;max-width:40vw;padding:.42rem .5rem;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--ink);font-size:.95rem}
+.var-row select{padding:.42rem .4rem;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--ink);font-size:.9rem}
+.var-row.unknown{background:var(--bfield-soft);border:1px solid var(--bfield)}
+.var-row .rv-box{width:130px;font-weight:700;color:var(--bfield);font-variant-numeric:tabular-nums}
+.solver-result{margin-top:.7rem;font-size:1.05rem;font-weight:700}
+.solver-result .rv{color:var(--bfield);font-variant-numeric:tabular-nums}
+.solver-msg{color:var(--bad);font-weight:600;font-size:.9rem;margin-top:.4rem;min-height:1em}
 kbd{font-family:inherit;background:var(--surface2);border:1px solid var(--border);border-bottom-width:2px;border-radius:5px;padding:.05em .4em;font-size:.85em}
 footer{max-width:1100px;margin:0 auto;padding:1.5rem 1rem 3rem;color:var(--muted);font-size:.82rem;border-top:1px solid var(--border);text-align:center}
 </style>
@@ -599,7 +615,24 @@ footer{max-width:1100px;margin:0 auto;padding:1.5rem 1rem 3rem;color:var(--muted
   <div class="mod-head"><span class="eyebrow blue">Riepilogo</span><h2>Quiz finale</h2></div>
   <div class="card tight"><p class="lead" style="margin:.2rem 0">Dieci domande di teoria e cinque problemi, presi da tutti i moduli. Una domanda alla volta, puoi tornare indietro; il <b>punteggio compare solo alla fine</b>, con le spiegazioni.</p></div>
   <div data-quiz="final"></div>
-  <div class="secnav"><button data-goto="ac">← Corrente alternata</button><button class="next" data-goto="intro">Torna all'introduzione →</button></div>
+  <div class="secnav"><button data-goto="ac">← Corrente alternata</button><button class="next" data-goto="risolutore">Risolutore →</button></div>
+</section>
+
+<!-- ============ MODULO: RISOLUTORE ============ -->
+<section class="mod" id="mod-risolutore" data-title="Risolutore">
+  <div class="mod-head"><span class="eyebrow amber">Risolutore</span><h2>Risolutore di problemi</h2></div>
+  <div class="card tight"><p class="small muted" style="margin:.2rem 0">Scegli l'argomento e la formula, indica <b>quale grandezza è l'incognita</b> e inserisci i dati con il prefisso SI che preferisci (da femto a tera): il risultato compare nell'unità che scegli. Sono le stesse formule di teoria ed esercizi.</p></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-pane="rs-campo">Campo magnetico</button>
+    <button role="tab" aria-selected="false" data-pane="rs-cariche">Cariche in moto</button>
+    <button role="tab" aria-selected="false" data-pane="rs-induzione">Induzione</button>
+    <button role="tab" aria-selected="false" data-pane="rs-ac">Corrente alternata</button>
+  </div>
+  <div class="pane on" data-pane="rs-campo"><div class="card" data-solver="campo"></div></div>
+  <div class="pane" data-pane="rs-cariche"><div class="card" data-solver="cariche"></div></div>
+  <div class="pane" data-pane="rs-induzione"><div class="card" data-solver="induzione"></div></div>
+  <div class="pane" data-pane="rs-ac"><div class="card" data-solver="ac"></div></div>
+  <div class="secnav"><button data-goto="finale">← Quiz finale</button><button class="next" data-goto="intro">Torna all'introduzione →</button></div>
 </section>
 
 </main>
@@ -1152,6 +1185,164 @@ $$('[data-quiz]').forEach(c=>{
   if(id==='final'){const f=buildFinal();createQuiz(c,{mode:'final',title:'Quiz finale di riepilogo',theory:f.theory,numeric:f.numeric});}
   else{const b=banks[id];createQuiz(c,{mode:'immediate',title:b.title,theory:b.theory,numeric:b.numeric});}
 });
+
+/* ===================================================================
+   RISOLUTORE — motore generico per invertire ogni formula
+   =================================================================== */
+const MU0=4*Math.PI*1e-7;
+const PREFIXES=[['T',1e12],['G',1e9],['M',1e6],['k',1e3],['',1],['c',1e-2],['m',1e-3],['µ',1e-6],['n',1e-9],['p',1e-12],['f',1e-15]];
+function unitOptions(u){
+  if(u==='num')return null;
+  if(u==='angle')return [{l:'°',f:'deg'},{l:'rad',f:'rad'}];
+  if(u==='area')return [{l:'m²',f:1},{l:'dm²',f:1e-2},{l:'cm²',f:1e-4},{l:'mm²',f:1e-6}];
+  if(u==='vel')return [{l:'m/s',f:1},{l:'km/s',f:1e3},{l:'km/h',f:1/3.6}];
+  if(u==='mass')return [{l:'kg',f:1},{l:'g',f:1e-3},{l:'mg',f:1e-6},{l:'µg',f:1e-9},{l:'t',f:1e3}];
+  return PREFIXES.map(([p,f])=>({l:p+u,f}));
+}
+function defaultUnitIdx(opts){const i=opts.findIndex(o=>o.f===1||o.f==='deg');return i<0?0:i;}
+function toBase(val,unit,sel){const opts=unitOptions(unit);if(!opts)return val;const o=opts[sel?+sel.value:defaultUnitIdx(opts)];if(o.f==='deg')return val*Math.PI/180;if(o.f==='rad')return val;return val*o.f;}
+function fromBase(base,unit,sel){const opts=unitOptions(unit);if(!opts)return {value:base,label:''};const o=opts[sel?+sel.value:defaultUnitIdx(opts)];let value;if(o.f==='deg')value=base*180/Math.PI;else if(o.f==='rad')value=base;else value=base/o.f;return {value,label:o.l};}
+function sup(n){const m={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};return String(n).split('').map(c=>m[c]||c).join('');}
+function formatNum(x){
+  if(!isFinite(x))return '—';if(x===0)return '0';
+  const ax=Math.abs(x);
+  if(ax>=1e5||ax<1e-3){let e=Math.floor(Math.log10(ax));let mant=x/Math.pow(10,e);mant=Math.round(mant*1000)/1000;if(Math.abs(mant)>=10){mant/=10;e++;}return mant.toLocaleString('it-IT',{maximumFractionDigits:3})+'·10'+sup(e);}
+  return x.toLocaleString('it-IT',{maximumSignificantDigits:4});
+}
+/* Definizione formule: sym=simbolo mostrato, unit=chiave unità, def=valore preimpostato */
+const FORMULAS={
+ campo:[
+  {id:'biot',label:'Filo (Biot-Savart): B = μ₀·I / (2π·r)',latex:'B=\\dfrac{\\mu_0\\,I}{2\\pi\\,r}',
+   vars:{B:{sym:'B',name:'Campo magnetico',unit:'T'},I:{sym:'I',name:'Corrente',unit:'A'},r:{sym:'r',name:'Distanza dal filo',unit:'m'}},
+   solve:{B:x=>MU0*x.I/(2*Math.PI*x.r),I:x=>x.B*2*Math.PI*x.r/MU0,r:x=>MU0*x.I/(2*Math.PI*x.B)}},
+  {id:'spira',label:'Spira (al centro): B = μ₀·I / (2R)',latex:'B=\\dfrac{\\mu_0\\,I}{2R}',
+   vars:{B:{sym:'B',name:'Campo al centro',unit:'T'},I:{sym:'I',name:'Corrente',unit:'A'},R:{sym:'R',name:'Raggio della spira',unit:'m'}},
+   solve:{B:x=>MU0*x.I/(2*x.R),I:x=>x.B*2*x.R/MU0,R:x=>MU0*x.I/(2*x.B)}},
+  {id:'sol',label:'Solenoide: B = μ₀·N·I / L',latex:'B=\\dfrac{\\mu_0\\,N\\,I}{L}',
+   vars:{B:{sym:'B',name:'Campo interno',unit:'T'},N:{sym:'N',name:'Numero di spire',unit:'num'},I:{sym:'I',name:'Corrente',unit:'A'},L:{sym:'L',name:'Lunghezza',unit:'m'}},
+   solve:{B:x=>MU0*x.N*x.I/x.L,N:x=>x.B*x.L/(MU0*x.I),I:x=>x.B*x.L/(MU0*x.N),L:x=>MU0*x.N*x.I/x.B}},
+  {id:'fili',label:'Forza tra due fili: F/L = μ₀·I₁·I₂ / (2π·d)',latex:'\\dfrac{F}{L}=\\dfrac{\\mu_0\\,I_1 I_2}{2\\pi\\,d}',
+   vars:{FL:{sym:'F/L',name:'Forza per lunghezza',unit:'N/m'},I1:{sym:'I₁',name:'Corrente 1',unit:'A'},I2:{sym:'I₂',name:'Corrente 2',unit:'A'},d:{sym:'d',name:'Distanza tra i fili',unit:'m'}},
+   solve:{FL:x=>MU0*x.I1*x.I2/(2*Math.PI*x.d),I1:x=>x.FL*2*Math.PI*x.d/(MU0*x.I2),I2:x=>x.FL*2*Math.PI*x.d/(MU0*x.I1),d:x=>MU0*x.I1*x.I2/(2*Math.PI*x.FL)}},
+  {id:'lorentz',label:'Forza di Lorentz: F = q·v·B·sin θ',latex:'F=q\\,v\\,B\\,\\sin\\theta',
+   vars:{F:{sym:'F',name:'Forza',unit:'N'},q:{sym:'q',name:'Carica',unit:'C'},v:{sym:'v',name:'Velocità',unit:'vel'},B:{sym:'B',name:'Campo magnetico',unit:'T'},θ:{sym:'θ',name:'Angolo v–B',unit:'angle',def:90}},
+   solve:{F:x=>x.q*x.v*x.B*Math.sin(x.θ),q:x=>x.F/(x.v*x.B*Math.sin(x.θ)),v:x=>x.F/(x.q*x.B*Math.sin(x.θ)),B:x=>x.F/(x.q*x.v*Math.sin(x.θ)),θ:x=>Math.asin(x.F/(x.q*x.v*x.B))}}
+ ],
+ cariche:[
+  {id:'raggio',label:'Raggio traiettoria: r = m·v / (q·B)',latex:'r=\\dfrac{m\\,v}{q\\,B}',
+   vars:{r:{sym:'r',name:'Raggio',unit:'m'},m:{sym:'m',name:'Massa',unit:'mass'},v:{sym:'v',name:'Velocità',unit:'vel'},q:{sym:'q',name:'Carica',unit:'C'},B:{sym:'B',name:'Campo magnetico',unit:'T'}},
+   solve:{r:x=>x.m*x.v/(x.q*x.B),m:x=>x.r*x.q*x.B/x.v,v:x=>x.r*x.q*x.B/x.m,q:x=>x.m*x.v/(x.r*x.B),B:x=>x.m*x.v/(x.r*x.q)}},
+  {id:'periodo',label:'Periodo: T = 2π·m / (q·B)',latex:'T=\\dfrac{2\\pi m}{q\\,B}',
+   vars:{T:{sym:'T',name:'Periodo',unit:'s'},m:{sym:'m',name:'Massa',unit:'mass'},q:{sym:'q',name:'Carica',unit:'C'},B:{sym:'B',name:'Campo magnetico',unit:'T'}},
+   solve:{T:x=>2*Math.PI*x.m/(x.q*x.B),m:x=>x.T*x.q*x.B/(2*Math.PI),q:x=>2*Math.PI*x.m/(x.T*x.B),B:x=>2*Math.PI*x.m/(x.T*x.q)}},
+  {id:'freq',label:'Frequenza di ciclotrone: f = q·B / (2π·m)',latex:'f=\\dfrac{q\\,B}{2\\pi m}',
+   vars:{f:{sym:'f',name:'Frequenza',unit:'Hz'},q:{sym:'q',name:'Carica',unit:'C'},B:{sym:'B',name:'Campo magnetico',unit:'T'},m:{sym:'m',name:'Massa',unit:'mass'}},
+   solve:{f:x=>x.q*x.B/(2*Math.PI*x.m),q:x=>2*Math.PI*x.m*x.f/x.B,B:x=>2*Math.PI*x.m*x.f/x.q,m:x=>x.q*x.B/(2*Math.PI*x.f)}},
+  {id:'selett',label:'Selettore di velocità: v = E / B',latex:'v=\\dfrac{E}{B}',
+   vars:{v:{sym:'v',name:'Velocità selezionata',unit:'vel'},E:{sym:'E',name:'Campo elettrico',unit:'V/m'},B:{sym:'B',name:'Campo magnetico',unit:'T'}},
+   solve:{v:x=>x.E/x.B,E:x=>x.v*x.B,B:x=>x.E/x.v}},
+  {id:'spettro',label:'Spettrometro di massa: m/q = r·B / v',latex:'\\dfrac{m}{q}=\\dfrac{r\\,B}{v}',
+   vars:{mq:{sym:'m/q',name:'Massa su carica',unit:'kg/C'},r:{sym:'r',name:'Raggio',unit:'m'},B:{sym:'B',name:'Campo magnetico',unit:'T'},v:{sym:'v',name:'Velocità',unit:'vel'}},
+   solve:{mq:x=>x.r*x.B/x.v,r:x=>x.mq*x.v/x.B,B:x=>x.mq*x.v/x.r,v:x=>x.r*x.B/x.mq}}
+ ],
+ induzione:[
+  {id:'flusso',label:'Flusso magnetico: Φ = B·A·cos θ',latex:'\\Phi=B\\,A\\,\\cos\\theta',
+   vars:{Φ:{sym:'Φ',name:'Flusso',unit:'Wb'},B:{sym:'B',name:'Campo magnetico',unit:'T'},A:{sym:'A',name:'Area',unit:'area'},θ:{sym:'θ',name:'Angolo con la normale',unit:'angle',def:0}},
+   solve:{Φ:x=>x.B*x.A*Math.cos(x.θ),B:x=>x.Φ/(x.A*Math.cos(x.θ)),A:x=>x.Φ/(x.B*Math.cos(x.θ)),θ:x=>Math.acos(x.Φ/(x.B*x.A))}},
+  {id:'faraday',label:'Faraday: f.e.m. = N·ΔΦ / Δt',latex:'\\mathcal{E}=N\\,\\dfrac{\\Delta\\Phi}{\\Delta t}',
+   vars:{fem:{sym:'f.e.m.',name:'Forza elettromotrice',unit:'V'},N:{sym:'N',name:'Numero di spire',unit:'num'},dΦ:{sym:'ΔΦ',name:'Variazione di flusso',unit:'Wb'},dt:{sym:'Δt',name:'Intervallo di tempo',unit:'s'}},
+   solve:{fem:x=>x.N*x.dΦ/x.dt,N:x=>x.fem*x.dt/x.dΦ,dΦ:x=>x.fem*x.dt/x.N,dt:x=>x.N*x.dΦ/x.fem}},
+  {id:'autoind',label:'Autoinduzione: f.e.m. = L·ΔI / Δt',latex:'\\mathcal{E}=L\\,\\dfrac{\\Delta I}{\\Delta t}',
+   vars:{fem:{sym:'f.e.m.',name:'Forza elettromotrice',unit:'V'},L:{sym:'L',name:'Induttanza',unit:'H'},dI:{sym:'ΔI',name:'Variazione di corrente',unit:'A'},dt:{sym:'Δt',name:'Intervallo di tempo',unit:'s'}},
+   solve:{fem:x=>x.L*x.dI/x.dt,L:x=>x.fem*x.dt/x.dI,dI:x=>x.fem*x.dt/x.L,dt:x=>x.L*x.dI/x.fem}},
+  {id:'rl',label:'Circuito RL: τ = L / R',latex:'\\tau=\\dfrac{L}{R}',
+   vars:{τ:{sym:'τ',name:'Costante di tempo',unit:'s'},L:{sym:'L',name:'Induttanza',unit:'H'},R:{sym:'R',name:'Resistenza',unit:'Ω'}},
+   solve:{τ:x=>x.L/x.R,L:x=>x.τ*x.R,R:x=>x.L/x.τ}},
+  {id:'altern',label:'Alternatore: f.e.m.₀ = N·B·A·ω',latex:'\\mathcal{E}_0=N\\,B\\,A\\,\\omega',
+   vars:{fem0:{sym:'f.e.m.₀',name:'F.e.m. massima',unit:'V'},N:{sym:'N',name:'Numero di spire',unit:'num'},B:{sym:'B',name:'Campo magnetico',unit:'T'},A:{sym:'A',name:'Area',unit:'area'},ω:{sym:'ω',name:'Pulsazione',unit:'rad/s'}},
+   solve:{fem0:x=>x.N*x.B*x.A*x.ω,N:x=>x.fem0/(x.B*x.A*x.ω),B:x=>x.fem0/(x.N*x.A*x.ω),A:x=>x.fem0/(x.N*x.B*x.ω),ω:x=>x.fem0/(x.N*x.B*x.A)}}
+ ],
+ ac:[
+  {id:'veff',label:'Valore efficace: V_eff = V₀ / √2',latex:'V_{\\text{eff}}=\\dfrac{V_0}{\\sqrt2}',
+   vars:{Veff:{sym:'V_eff',name:'Valore efficace',unit:'V'},V0:{sym:'V₀',name:'Valore di picco',unit:'V'}},
+   solve:{Veff:x=>x.V0/Math.SQRT2,V0:x=>x.Veff*Math.SQRT2}},
+  {id:'omega',label:'Pulsazione: ω = 2π·f',latex:'\\omega=2\\pi f',
+   vars:{ω:{sym:'ω',name:'Pulsazione',unit:'rad/s'},f:{sym:'f',name:'Frequenza',unit:'Hz'}},
+   solve:{ω:x=>2*Math.PI*x.f,f:x=>x.ω/(2*Math.PI)}},
+  {id:'xl',label:'Reattanza induttiva: X_L = ω·L',latex:'X_L=\\omega L',
+   vars:{XL:{sym:'X_L',name:'Reattanza induttiva',unit:'Ω'},ω:{sym:'ω',name:'Pulsazione',unit:'rad/s'},L:{sym:'L',name:'Induttanza',unit:'H'}},
+   solve:{XL:x=>x.ω*x.L,ω:x=>x.XL/x.L,L:x=>x.XL/x.ω}},
+  {id:'xc',label:'Reattanza capacitiva: X_C = 1 / (ω·C)',latex:'X_C=\\dfrac{1}{\\omega C}',
+   vars:{XC:{sym:'X_C',name:'Reattanza capacitiva',unit:'Ω'},ω:{sym:'ω',name:'Pulsazione',unit:'rad/s'},C:{sym:'C',name:'Capacità',unit:'F'}},
+   solve:{XC:x=>1/(x.ω*x.C),ω:x=>1/(x.XC*x.C),C:x=>1/(x.XC*x.ω)}},
+  {id:'imped',label:'Impedenza RLC serie: Z = √(R² + (X_L−X_C)²)',latex:'Z=\\sqrt{R^2+(X_L-X_C)^2}',
+   vars:{Z:{sym:'Z',name:'Impedenza',unit:'Ω'},R:{sym:'R',name:'Resistenza',unit:'Ω'},XL:{sym:'X_L',name:'Reattanza induttiva',unit:'Ω'},XC:{sym:'X_C',name:'Reattanza capacitiva',unit:'Ω'}},
+   solve:{Z:x=>Math.hypot(x.R,x.XL-x.XC),R:x=>Math.sqrt(x.Z*x.Z-(x.XL-x.XC)**2),XL:x=>x.XC+Math.sqrt(x.Z*x.Z-x.R*x.R),XC:x=>x.XL-Math.sqrt(x.Z*x.Z-x.R*x.R)}},
+  {id:'sfas',label:'Sfasamento: φ = arctan((X_L−X_C)/R)',latex:'\\tan\\varphi=\\dfrac{X_L-X_C}{R}',
+   vars:{φ:{sym:'φ',name:'Sfasamento',unit:'angle'},XL:{sym:'X_L',name:'Reattanza induttiva',unit:'Ω'},XC:{sym:'X_C',name:'Reattanza capacitiva',unit:'Ω'},R:{sym:'R',name:'Resistenza',unit:'Ω'}},
+   solve:{φ:x=>Math.atan((x.XL-x.XC)/x.R),XL:x=>x.XC+x.R*Math.tan(x.φ),XC:x=>x.XL-x.R*Math.tan(x.φ),R:x=>(x.XL-x.XC)/Math.tan(x.φ)}},
+  {id:'pot',label:'Potenza attiva: P = V_eff·I_eff·cos φ',latex:'P=V_{\\text{eff}}\\,I_{\\text{eff}}\\,\\cos\\varphi',
+   vars:{P:{sym:'P',name:'Potenza attiva',unit:'W'},Veff:{sym:'V_eff',name:'Tensione efficace',unit:'V'},Ieff:{sym:'I_eff',name:'Corrente efficace',unit:'A'},cosφ:{sym:'cos φ',name:'Fattore di potenza',unit:'num'}},
+   solve:{P:x=>x.Veff*x.Ieff*x.cosφ,Veff:x=>x.P/(x.Ieff*x.cosφ),Ieff:x=>x.P/(x.Veff*x.cosφ),cosφ:x=>x.P/(x.Veff*x.Ieff)}},
+  {id:'ris',label:'Risonanza: f₀ = 1 / (2π·√(L·C))',latex:'f_0=\\dfrac{1}{2\\pi\\sqrt{LC}}',
+   vars:{f0:{sym:'f₀',name:'Frequenza di risonanza',unit:'Hz'},L:{sym:'L',name:'Induttanza',unit:'H'},C:{sym:'C',name:'Capacità',unit:'F'}},
+   solve:{f0:x=>1/(2*Math.PI*Math.sqrt(x.L*x.C)),L:x=>1/((2*Math.PI*x.f0)**2*x.C),C:x=>1/((2*Math.PI*x.f0)**2*x.L)}},
+  {id:'trasf',label:'Trasformatore: V₂/V₁ = N₂/N₁',latex:'\\dfrac{V_2}{V_1}=\\dfrac{N_2}{N_1}',
+   vars:{V1:{sym:'V₁',name:'Tensione primario',unit:'V'},V2:{sym:'V₂',name:'Tensione secondario',unit:'V'},N1:{sym:'N₁',name:'Spire primario',unit:'num'},N2:{sym:'N₂',name:'Spire secondario',unit:'num'}},
+   solve:{V2:x=>x.V1*x.N2/x.N1,V1:x=>x.V2*x.N1/x.N2,N2:x=>x.N1*x.V2/x.V1,N1:x=>x.N2*x.V1/x.V2}}
+ ]
+};
+function mountSolver(container,topic){
+  const list=FORMULAS[topic];
+  container.innerHTML=`<div class="solver-pick"><label class="small muted" style="font-weight:600">Formula</label><select class="fsel"></select></div><div class="fbody"></div>`;
+  const sel=container.querySelector('.fsel');
+  list.forEach((f,i)=>{const o=document.createElement('option');o.value=i;o.textContent=f.label;sel.appendChild(o);});
+  let curUnknown=null,lastBase=null;
+  function render(){
+    const f=list[+sel.value],syms=Object.keys(f.vars);
+    if(!curUnknown||!syms.includes(curUnknown))curUnknown=syms[0];
+    const body=container.querySelector('.fbody');
+    let html=`<div class="formula-box">\\[ ${f.latex} \\]</div><div class="small muted">Scegli l'incognita da calcolare:</div><div class="unk-seg">`;
+    syms.forEach(s=>{html+=`<button data-unk="${s}" class="${s===curUnknown?'active':''}">${f.vars[s].sym}</button>`;});
+    html+=`</div>`;
+    syms.forEach(s=>{
+      const vv=f.vars[s],isUnk=s===curUnknown,opts=unitOptions(vv.unit);
+      let unitHtml=opts?`<select data-unit="${s}">`+opts.map((o,i)=>`<option value="${i}" ${i===defaultUnitIdx(opts)?'selected':''}>${o.l}</option>`).join('')+`</select>`:`<span class="muted small">(numero puro)</span>`;
+      if(isUnk){html+=`<div class="var-row unknown"><span class="vlab">Incognita: ${vv.name} <b>${vv.sym}</b></span><span class="rv-box">—</span>${unitHtml}</div>`;}
+      else{const dv=vv.def!=null?vv.def:'';html+=`<div class="var-row"><span class="vlab">${vv.name} <b>${vv.sym}</b></span><input data-in="${s}" inputmode="decimal" value="${dv}" placeholder="valore">${unitHtml}</div>`;}
+    });
+    html+=`<div class="btn-row"><button class="btn primary" data-calc>Calcola</button></div><div class="solver-result" style="display:none">Risultato: <span class="rv"></span> <span class="ru"></span></div><div class="solver-msg"></div>`;
+    body.innerHTML=html;lastBase=null;
+    body.querySelectorAll('[data-unk]').forEach(b=>b.addEventListener('click',()=>{curUnknown=b.dataset.unk;render();}));
+    body.querySelector('[data-calc]').addEventListener('click',calc);
+    body.querySelectorAll('input[data-in]').forEach(inp=>inp.addEventListener('keydown',e=>{if(e.key==='Enter')calc();}));
+    const outSel=body.querySelector(`select[data-unit="${curUnknown}"]`);if(outSel)outSel.addEventListener('change',showRes);
+    typeset(body);
+  }
+  function calc(){
+    const f=list[+sel.value],syms=Object.keys(f.vars),body=container.querySelector('.fbody'),msg=body.querySelector('.solver-msg');
+    msg.textContent='';const x={};
+    for(const s of syms){if(s===curUnknown)continue;
+      const inp=body.querySelector(`input[data-in="${s}"]`),raw=inp.value.replace(',','.').replace(/\s/g,''),val=parseFloat(raw);
+      if(isNaN(val)){msg.textContent='Inserisci tutti i dati (manca "'+f.vars[s].sym+'").';body.querySelector('.solver-result').style.display='none';return;}
+      x[s]=toBase(val,f.vars[s].unit,body.querySelector(`select[data-unit="${s}"]`));
+    }
+    let res;try{res=f.solve[curUnknown](x);}catch(e){res=NaN;}
+    if(res===undefined||isNaN(res)||!isFinite(res)){msg.textContent='Con questi dati il calcolo non è possibile: controlla valori e unità (es. seno/coseno fuori intervallo o divisione per zero).';body.querySelector('.solver-result').style.display='none';return;}
+    lastBase=res;showRes();
+  }
+  function showRes(){
+    if(lastBase===null)return;
+    const f=list[+sel.value],body=container.querySelector('.fbody'),vv=f.vars[curUnknown];
+    const outSel=body.querySelector(`select[data-unit="${curUnknown}"]`),disp=fromBase(lastBase,vv.unit,outSel);
+    const rb=body.querySelector('.solver-result');rb.style.display='block';
+    rb.querySelector('.rv').textContent=formatNum(disp.value);rb.querySelector('.ru').textContent=disp.label;
+    const box=body.querySelector('.var-row.unknown .rv-box');if(box)box.textContent=formatNum(disp.value)+(disp.label?' '+disp.label:'');
+  }
+  sel.addEventListener('change',()=>{curUnknown=null;render();});
+  render();
+}
+$$('[data-solver]').forEach(c=>mountSolver(c,c.dataset.solver));
 
 /* ============ Avvio ============ */
 // apri il modulo indicato nell'hash, se valido
