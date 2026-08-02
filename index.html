@@ -1109,6 +1109,11 @@ function buildFinal(){
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function prep(q,type){const order=shuffle(q.o.map((t,i)=>i));return {q:q.q,opts:order.map(i=>q.o[i]),correct:order.indexOf(q.ok),e:q.e,type,src:q.src};}
 
+/* Commenti incoraggianti (tono neutro, non sminuente) */
+const OK_MSGS=['Esatto!','Proprio così!','Corretto, molto bene.','Ottimo, risposta giusta.','Sì, perfetto.','Bene, è proprio questa.'];
+const NO_MSGS=['Non ancora, ma ci sei vicino.','Capita: è un punto delicato, vediamo insieme.','Nessun problema, si impara anche così.','Quasi! Ecco il ragionamento corretto.','È un concetto ostico: ecco perché.','Tranquillo: ragioniamoci su.'];
+const NA_MSG='Questa è rimasta in bianco: ecco la spiegazione.';
+
 /* ---- Fabbrica di quiz: una domanda alla volta, con navigazione ---- */
 function createQuiz(container,cfg){
   let st;
@@ -1136,7 +1141,10 @@ function createQuiz(container,cfg){
     q.opts.forEach((o,oi)=>{let cls='opt';if(revealed){cls+=' disabled';if(oi===q.correct)cls+=' correct';if(oi===a&&a!==q.correct)cls+=' wrong';}else if(a===oi)cls+=' sel';
       html+=`<div class="${cls}" data-oi="${oi}"><span class="mk">${String.fromCharCode(65+oi)}</span><span>${o}</span></div>`;});
     html+=`</div>`;
-    if(revealed){if(a===q.correct)html+=`<div class="explain show ok"><b>Corretto.</b> ${q.e}</div>`;else html+=`<div class="explain show no"><b>${a===null?'Senza risposta.':'Non corretto.'}</b> Risposta giusta: ${String.fromCharCode(65+q.correct)}. ${q.e}</div>`;}
+    if(revealed){
+      if(a===q.correct){html+=`<div class="explain show ok"><b>${OK_MSGS[st.idx%OK_MSGS.length]}</b> ${q.e}</div>`;}
+      else{const lead=a===null?NA_MSG:NO_MSGS[st.idx%NO_MSGS.length];html+=`<div class="explain show no"><b>${lead}</b> La risposta corretta è ${String.fromCharCode(65+q.correct)}. ${q.e}</div>`;}
+    }
     html+=`</div>`;stage.innerHTML=html;
     if(!revealed)stage.querySelectorAll('.opt').forEach(opt=>opt.addEventListener('click',()=>onAnswer(parseInt(opt.dataset.oi))));
     updateNav();typeset(stage);
